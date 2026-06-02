@@ -1,0 +1,18 @@
+# Environments
+.env
+
+# Cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+
+# Raw Data
+data/raw/*.csv
+data/raw/*.parquet
+!data/raw/.gitkeep
+
+# IDEs
+.vscode/
+.idea/

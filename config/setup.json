@@ -1,0 +1,41 @@
+{
+    "hyperparameters": {
+        "learning_rate": 0.00025,
+        "gamma": 0.99,
+        "batch_size": 64,
+        "tau": 0.005,
+        "epsilon_start": 1.0,
+        "epsilon_end": 0.05,
+        "epsilon_decay": 200000,
+        "memory_size": 100000,
+        "target_update_interval": 250,
+        "episodes": 8,
+        "warmup_steps": 128,
+        "loss": "huber"
+    },
+    "environment": {
+        "initial_balance": 10000.0,
+        "window_size": 30,
+        "commission_fee": 0.001,
+        "slippage_fee": 0.001,
+        "invalid_action_penalty": 5.0,
+        "sharpe_lambda": 0.1
+    },
+    "data": {
+        "tickers": ["AAPL"],
+        "start_date": "2020-01-01",
+        "end_date": "2023-12-31",
+        "interval": "1d",
+        "cache_format": "parquet",
+        "train_ratio": 0.7,
+        "val_ratio": 0.15
+    },
+    "paths": {
+        "model_dir": "data/models",
+        "results_dir": "data/results",
+        "model_filename": "dueling_dqn.pt"
+    },
+    "backtest": {
+        "risk_free_rate": 0.0
+    }
+}

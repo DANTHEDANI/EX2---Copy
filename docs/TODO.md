@@ -1,0 +1,3 @@
+- [ ] Enhance Env rendering capacities for detailed reporting
+- [ ] Incorporate prioritized replay buffer
+- [ ] Connect tracking metrics directly to Backtest module

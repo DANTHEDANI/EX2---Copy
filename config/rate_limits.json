@@ -1,0 +1,8 @@
+{
+    "yfinance": {
+        "calls_per_second": 2,
+        "calls_per_hour": 500,
+        "retry_backoff": "exponential",
+        "max_retries": 5
+    }
+}

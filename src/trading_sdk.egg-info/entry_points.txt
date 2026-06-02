@@ -1,0 +1,2 @@
+[console_scripts]
+trading-sdk = trading_sdk.main:main

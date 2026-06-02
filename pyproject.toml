@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trading_sdk"
+version = "1.0.0"
+description = "Deep Q-Network Stock Trading Environment with Conv1D Dueling DQN"
+authors = [{ name = "AI Architect", email = "architect@example.com" }]
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.2.0",
+    "gymnasium>=0.29.1",
+    "yfinance>=0.2.36",
+    "pandas>=2.2.0",
+    "numpy>=1.26.0",
+    "scikit-learn>=1.4.0",
+    "pyarrow>=15.0.0",
+    "matplotlib>=3.10.9",
+]
+
+[project.scripts]
+trading-sdk = "trading_sdk.main:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.2.2",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+ignore = []
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--cov=src --cov-report=term-missing --cov-fail-under=85"
+testpaths = ["tests"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+    "pytest-cov>=7.1.0",
+]
