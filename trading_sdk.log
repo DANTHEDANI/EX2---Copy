@@ -1950,3 +1950,169 @@
 2026-06-02 16:28:18,541 [DEBUG] matplotlib.font_manager: findfont: Matching sans\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=12.0 to DejaVu Sans ('C:\\Users\\danie\\Documents\\VIBE_CODING\\EX2\\.venv\\Lib\\site-packages\\matplotlib\\mpl-data\\fonts\\ttf\\DejaVuSans.ttf') with score of 0.050000.
 2026-06-02 16:28:18,636 [INFO] trading_sdk.services.backtest: Backtest done. sharpe=0.426 mdd=-0.150
 2026-06-02 16:28:18,637 [INFO] trading_sdk.sdk: Backtest metrics for AAPL: {'final_equity': 10350.5185546875, 'sharpe_ratio': 0.42601251705790444, 'max_drawdown': -0.15047079307559774, 'win_rate': 0.5617977528089888, 'equity_curve': [np.float64(10000.0), np.float64(10000.0), np.float64(10000.0), np.float64(10000.0), np.float64(10000.0), np.float64(10000.0), np.float64(10000.0), np.float64(10000.0), np.float64(9941.4013671875), np.float64(9946.2392578125), np.float64(9889.791015625), np.float64(10053.22265625), np.float64(10036.01953125), np.float64(9960.2177734375), np.float64(10110.208984375), np.float64(10174.1845703125), np.float64(10192.462890625), np.float64(10427.9345703125), np.float64(10346.755859375), np.float64(10286.0068359375), np.float64(10311.8115234375), np.float64(10251.0615234375), np.float64(10139.77734375), np.float64(10111.2841796875), np.float64(10202.1396484375), np.float64(10243.53515625), np.float64(10251.599609375), np.float64(10429.009765625), np.float64(10415.03125), np.float64(10488.68359375), np.float64(10382.775390625), np.float64(10318.80078125), np.float64(10362.3466796875), np.float64(10409.1181640625), np.float64(10456.427734375), np.float64(10387.6142578125), np.float64(10527.9287109375), np.float64(10561.259765625), np.float64(10516.1015625), np.float64(10353.20703125), np.float64(10277.404296875), np.float64(9783.8828125), np.float64(9615.0751953125), np.float64(9666.1474609375), np.float64(9579.5927734375), np.float64(9567.765625), np.float64(9558.087890625), np.float64(9647.869140625), np.float64(9539.8095703125), np.float64(9492.5009765625), np.float64(9354.3359375), np.float64(9380.6787109375), np.float64(9453.2548828125), np.float64(9527.982421875), np.float64(9737.1103515625), np.float64(9482.2861328125), np.float64(9602.171875), np.float64(9687.1142578125), np.float64(9898.392578125), np.float64(10088.1669921875), np.float64(10099.994140625), np.float64(10185.474609375), np.float64(10198.3759765625), np.float64(9833.3427734375), np.float64(9545.7236328125), np.float64(9579.0546875), np.float64(9642.4921875), np.float64(9477.9853515625), np.float64(9365.6259765625), np.float64(9447.8798828125), np.float64(9408.6337890625), np.float64(9567.765625), np.float64(9626.90234375), np.float64(9434.439453125), np.float64(9350.572265625), np.float64(9396.806640625), np.float64(9466.158203125), np.float64(9244.6650390625), np.float64(9162.41015625), np.float64(9176.388671875), np.float64(9204.3447265625), np.float64(9340.8955078125), np.float64(9268.318359375), np.float64(9336.0576171875), np.float64(9403.2578125), np.float64(9541.9609375), np.float64(9622.6015625), np.float64(9590.3447265625), np.float64(9666.1474609375), np.float64(9715.0693359375), np.float64(9615.0751953125), np.float64(9608.0859375), np.float64(9523.681640625), np.float64(9453.2548828125), np.float64(9432.8271484375), np.float64(9294.1240234375), np.float64(9300.5751953125), np.float64(9324.23046875), np.float64(9198.4306640625), np.float64(8972.0986328125), np.float64(9043.599609375), np.float64(9154.8837890625), np.float64(9180.689453125), np.float64(9352.7236328125), np.float64(9546.26171875), np.float64(9496.80078125), np.float64(9635.5029296875), np.float64(9774.744140625), np.float64(9832.267578125), np.float64(9806.4619140625), np.float64(10020.966796875), np.float64(9934.9501953125), np.float64(10076.8779296875), np.float64(10107.5205078125), np.float64(10198.9150390625), np.float64(10197.8388671875), np.float64(10292.45703125), np.float64(10248.9111328125), np.float64(10284.9306640625), np.float64(10212.8916015625), np.float64(10203.21484375), np.float64(10236.0087890625), np.float64(10180.6357421875), np.float64(10211.81640625), np.float64(10281.16796875), np.float64(10183.861328125), np.float64(10398.3662109375), np.float64(10339.2294921875), np.float64(10444.0625), np.float64(10521.4775390625), np.float64(10385.462890625), np.float64(10467.7177734375), np.float64(10642.439453125), np.float64(10650.5029296875), np.float64(10621.47265625), np.float64(10531.154296875), np.float64(10587.603515625), np.float64(10474.16796875), np.float64(10466.103515625), np.float64(10408.04296875), np.float64(10378.474609375), np.float64(10383.8505859375), np.float64(10406.9677734375), np.float64(10350.5185546875)]}
+2026-06-02 20:46:44,701 [INFO] src.trading_sdk.shared.config: Configuration Manager initialized successfully.
+2026-06-02 20:46:45,213 [DEBUG] yfinance: Entering download()
+2026-06-02 20:46:45,215 [DEBUG] yfinance: Disabling multithreading because DEBUG logging enabled
+2026-06-02 20:46:45,216 [DEBUG] yfinance:  Entering history()
+2026-06-02 20:46:45,254 [DEBUG] peewee: ('CREATE TABLE IF NOT EXISTS "_tz_kv" ("key" VARCHAR(255) NOT NULL PRIMARY KEY, "value" VARCHAR(255)) WITHOUT ROWID', [])
+2026-06-02 20:46:45,295 [DEBUG] peewee: ('SELECT "t1"."key", "t1"."value" FROM "_tz_kv" AS "t1" WHERE ("t1"."key" = ?) LIMIT ? OFFSET ?', ['AAPL', 1, 0])
+2026-06-02 20:46:45,297 [DEBUG] yfinance:   Entering _fetch_ticker_tz()
+2026-06-02 20:46:45,298 [DEBUG] yfinance:    Entering get()
+2026-06-02 20:46:45,298 [DEBUG] yfinance:     Entering _make_request()
+2026-06-02 20:46:45,299 [DEBUG] yfinance: url=https://query2.finance.yahoo.com/v8/finance/chart/AAPL
+2026-06-02 20:46:45,299 [DEBUG] yfinance: params={'range': '1d', 'interval': '1d'}
+2026-06-02 20:46:45,299 [DEBUG] yfinance:      Entering _get_cookie_and_crumb()
+2026-06-02 20:46:45,299 [DEBUG] yfinance: cookie_mode = 'basic'
+2026-06-02 20:46:45,299 [DEBUG] yfinance:       Entering _get_cookie_and_crumb_basic()
+2026-06-02 20:46:45,299 [DEBUG] yfinance:        Entering _get_cookie_basic()
+2026-06-02 20:46:45,299 [DEBUG] yfinance:         Entering _load_cookie_curlCffi()
+2026-06-02 20:46:45,354 [DEBUG] peewee: ('CREATE TABLE IF NOT EXISTS "_cookieschema" ("strategy" VARCHAR(255) NOT NULL PRIMARY KEY, "fetch_date" DATETIME NOT NULL, "cookie_bytes" BLOB NOT NULL) WITHOUT ROWID', [])
+2026-06-02 20:46:45,367 [DEBUG] peewee: ('SELECT "t1"."strategy", "t1"."fetch_date", "t1"."cookie_bytes" FROM "_cookieschema" AS "t1" WHERE ("t1"."strategy" = ?) LIMIT ? OFFSET ?', ['curlCffi', 1, 0])
+2026-06-02 20:46:45,372 [DEBUG] yfinance:         Exiting _load_cookie_curlCffi()
+2026-06-02 20:46:46,828 [DEBUG] yfinance:         Entering _save_cookie_curlCffi()
+2026-06-02 20:46:46,830 [DEBUG] peewee: ('DELETE FROM "_cookieschema" WHERE ("_cookieschema"."strategy" = ?)', ['curlCffi'])
+2026-06-02 20:46:46,830 [DEBUG] peewee: ('BEGIN', None)
+2026-06-02 20:46:46,831 [DEBUG] peewee: ('INSERT INTO "_cookieschema" ("strategy", "fetch_date", "cookie_bytes") VALUES (?, ?, ?)', ['curlCffi', '2026-06-02T20:46:46.831931', <memory at 0x00000155A3308580>])
+2026-06-02 20:46:46,832 [DEBUG] peewee: ('COMMIT', None)
+2026-06-02 20:46:46,840 [DEBUG] yfinance:         Exiting _save_cookie_curlCffi()
+2026-06-02 20:46:46,840 [DEBUG] yfinance:        Exiting _get_cookie_basic()
+2026-06-02 20:46:46,840 [DEBUG] yfinance:        Entering _get_crumb_basic()
+2026-06-02 20:46:46,840 [DEBUG] yfinance:         Entering _get_cookie_basic()
+2026-06-02 20:46:46,840 [DEBUG] yfinance:          Entering _load_cookie_curlCffi()
+2026-06-02 20:46:46,842 [DEBUG] peewee: ('SELECT "t1"."strategy", "t1"."fetch_date", "t1"."cookie_bytes" FROM "_cookieschema" AS "t1" WHERE ("t1"."strategy" = ?) LIMIT ? OFFSET ?', ['curlCffi', 1, 0])
+2026-06-02 20:46:46,843 [DEBUG] yfinance:          Exiting _load_cookie_curlCffi()
+2026-06-02 20:46:46,843 [DEBUG] yfinance: reusing persistent cookie
+2026-06-02 20:46:46,843 [DEBUG] yfinance:         Exiting _get_cookie_basic()
+2026-06-02 20:46:47,644 [DEBUG] yfinance: crumb = 'u.IVV5DdWKD'
+2026-06-02 20:46:47,644 [DEBUG] yfinance:        Exiting _get_crumb_basic()
+2026-06-02 20:46:47,646 [DEBUG] yfinance:       Exiting _get_cookie_and_crumb_basic()
+2026-06-02 20:46:47,646 [DEBUG] yfinance:      Exiting _get_cookie_and_crumb()
+2026-06-02 20:46:48,281 [DEBUG] yfinance: response code=200
+2026-06-02 20:46:48,281 [DEBUG] yfinance:     Exiting _make_request()
+2026-06-02 20:46:48,281 [DEBUG] yfinance:    Exiting get()
+2026-06-02 20:46:48,281 [DEBUG] yfinance:   Exiting _fetch_ticker_tz()
+2026-06-02 20:46:50,288 [DEBUG] peewee: ('BEGIN', None)
+2026-06-02 20:46:50,290 [DEBUG] peewee: ('INSERT INTO "_tz_kv" ("key", "value") VALUES (?, ?)', ['AAPL', 'America/New_York'])
+2026-06-02 20:46:50,290 [DEBUG] peewee: ('COMMIT', None)
+2026-06-02 20:46:50,292 [DEBUG] yfinance:   Entering history()
+2026-06-02 20:46:50,305 [DEBUG] yfinance: AAPL: Yahoo GET parameters: {'period1': '2020-01-01 00:00:00-05:00', 'period2': '2023-01-01 00:00:00-05:00', 'interval': '1d', 'includePrePost': False, 'events': 'div,splits,capitalGains'}
+2026-06-02 20:46:50,306 [DEBUG] yfinance:    Entering get()
+2026-06-02 20:46:50,306 [DEBUG] yfinance:     Entering _make_request()
+2026-06-02 20:46:50,306 [DEBUG] yfinance: url=https://query2.finance.yahoo.com/v8/finance/chart/AAPL
+2026-06-02 20:46:50,306 [DEBUG] yfinance: params={'period1': 1577854800, 'period2': 1672549200, 'interval': '1d', 'includePrePost': False, 'events': 'div,splits,capitalGains'}
+2026-06-02 20:46:50,306 [DEBUG] yfinance:      Entering _get_cookie_and_crumb()
+2026-06-02 20:46:50,306 [DEBUG] yfinance: cookie_mode = 'basic'
+2026-06-02 20:46:50,306 [DEBUG] yfinance:       Entering _get_cookie_and_crumb_basic()
+2026-06-02 20:46:50,308 [DEBUG] yfinance:        Entering _get_cookie_basic()
+2026-06-02 20:46:50,308 [DEBUG] yfinance: reusing cookie
+2026-06-02 20:46:50,308 [DEBUG] yfinance:        Exiting _get_cookie_basic()
+2026-06-02 20:46:50,308 [DEBUG] yfinance:        Entering _get_crumb_basic()
+2026-06-02 20:46:50,308 [DEBUG] yfinance: reusing crumb
+2026-06-02 20:46:50,308 [DEBUG] yfinance:        Exiting _get_crumb_basic()
+2026-06-02 20:46:50,308 [DEBUG] yfinance:       Exiting _get_cookie_and_crumb_basic()
+2026-06-02 20:46:50,308 [DEBUG] yfinance:      Exiting _get_cookie_and_crumb()
+2026-06-02 20:46:50,714 [DEBUG] yfinance: response code=200
+2026-06-02 20:46:50,714 [DEBUG] yfinance:     Exiting _make_request()
+2026-06-02 20:46:50,714 [DEBUG] yfinance:    Exiting get()
+2026-06-02 20:46:50,721 [DEBUG] yfinance: AAPL: yfinance received OHLC data: 2020-01-02 14:30:00 -> 2022-12-30 14:30:00
+2026-06-02 20:46:50,726 [DEBUG] yfinance: AAPL: OHLC after cleaning: 2020-01-02 09:30:00-05:00 -> 2022-12-30 09:30:00-05:00
+2026-06-02 20:46:50,766 [DEBUG] yfinance: AAPL: OHLC after combining events: 2020-01-02 00:00:00-05:00 -> 2022-12-30 00:00:00-05:00
+2026-06-02 20:46:50,776 [DEBUG] yfinance: AAPL: yfinance returning OHLC: 2020-01-02 00:00:00-05:00 -> 2022-12-30 00:00:00-05:00
+2026-06-02 20:46:50,776 [DEBUG] yfinance:   Exiting history()
+2026-06-02 20:46:50,779 [DEBUG] yfinance:  Exiting history()
+2026-06-02 20:46:50,791 [DEBUG] yfinance: Exiting download()
+2026-06-02 20:46:50,795 [WARNING] src.trading_sdk.data.client: Failed to write cache at C:\Users\omerl\BarIlan Projects\Third Year\B'_Semester\Vibe Coding\ex_2\EX2---Copy\data\raw\AAPL_2020-01-01_2023-01-01.parquet: Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
+A suitable version of pyarrow or fastparquet is required for parquet support.
+Trying to import the above resulted in these errors:
+ - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
+ - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
+2026-06-02 20:54:31,967 [INFO] src.trading_sdk.shared.config: Configuration Manager initialized successfully.
+2026-06-02 20:54:32,473 [DEBUG] yfinance: Entering download()
+2026-06-02 20:54:32,488 [DEBUG] yfinance: Disabling multithreading because DEBUG logging enabled
+2026-06-02 20:54:32,488 [DEBUG] yfinance:  Entering history()
+2026-06-02 20:54:32,508 [DEBUG] peewee: ('CREATE TABLE IF NOT EXISTS "_tz_kv" ("key" VARCHAR(255) NOT NULL PRIMARY KEY, "value" VARCHAR(255)) WITHOUT ROWID', [])
+2026-06-02 20:54:32,510 [DEBUG] peewee: ('SELECT "t1"."key", "t1"."value" FROM "_tz_kv" AS "t1" WHERE ("t1"."key" = ?) LIMIT ? OFFSET ?', ['AAPL', 1, 0])
+2026-06-02 20:54:33,070 [DEBUG] yfinance:   Entering history()
+2026-06-02 20:54:33,088 [DEBUG] yfinance: AAPL: Yahoo GET parameters: {'period1': '2020-01-01 00:00:00-05:00', 'period2': '2023-01-01 00:00:00-05:00', 'interval': '1d', 'includePrePost': False, 'events': 'div,splits,capitalGains'}
+2026-06-02 20:54:33,090 [DEBUG] yfinance:    Entering get()
+2026-06-02 20:54:33,090 [DEBUG] yfinance:     Entering _make_request()
+2026-06-02 20:54:33,092 [DEBUG] yfinance: url=https://query2.finance.yahoo.com/v8/finance/chart/AAPL
+2026-06-02 20:54:33,092 [DEBUG] yfinance: params={'period1': 1577854800, 'period2': 1672549200, 'interval': '1d', 'includePrePost': False, 'events': 'div,splits,capitalGains'}
+2026-06-02 20:54:33,092 [DEBUG] yfinance:      Entering _get_cookie_and_crumb()
+2026-06-02 20:54:33,092 [DEBUG] yfinance: cookie_mode = 'basic'
+2026-06-02 20:54:33,092 [DEBUG] yfinance:       Entering _get_cookie_and_crumb_basic()
+2026-06-02 20:54:33,092 [DEBUG] yfinance:        Entering _get_cookie_basic()
+2026-06-02 20:54:33,092 [DEBUG] yfinance:         Entering _load_cookie_curlCffi()
+2026-06-02 20:54:33,103 [DEBUG] peewee: ('CREATE TABLE IF NOT EXISTS "_cookieschema" ("strategy" VARCHAR(255) NOT NULL PRIMARY KEY, "fetch_date" DATETIME NOT NULL, "cookie_bytes" BLOB NOT NULL) WITHOUT ROWID', [])
+2026-06-02 20:54:33,106 [DEBUG] peewee: ('SELECT "t1"."strategy", "t1"."fetch_date", "t1"."cookie_bytes" FROM "_cookieschema" AS "t1" WHERE ("t1"."strategy" = ?) LIMIT ? OFFSET ?', ['curlCffi', 1, 0])
+2026-06-02 20:54:33,106 [DEBUG] yfinance:         Exiting _load_cookie_curlCffi()
+2026-06-02 20:54:33,106 [DEBUG] yfinance: reusing persistent cookie
+2026-06-02 20:54:33,106 [DEBUG] yfinance:        Exiting _get_cookie_basic()
+2026-06-02 20:54:33,106 [DEBUG] yfinance:        Entering _get_crumb_basic()
+2026-06-02 20:54:33,106 [DEBUG] yfinance:         Entering _get_cookie_basic()
+2026-06-02 20:54:33,106 [DEBUG] yfinance: reusing cookie
+2026-06-02 20:54:33,106 [DEBUG] yfinance:         Exiting _get_cookie_basic()
+2026-06-02 20:54:34,032 [DEBUG] yfinance: crumb = 'u.IVV5DdWKD'
+2026-06-02 20:54:34,033 [DEBUG] yfinance:        Exiting _get_crumb_basic()
+2026-06-02 20:54:34,033 [DEBUG] yfinance:       Exiting _get_cookie_and_crumb_basic()
+2026-06-02 20:54:34,033 [DEBUG] yfinance:      Exiting _get_cookie_and_crumb()
+2026-06-02 20:54:34,762 [DEBUG] yfinance: response code=200
+2026-06-02 20:54:34,762 [DEBUG] yfinance:     Exiting _make_request()
+2026-06-02 20:54:34,764 [DEBUG] yfinance:    Exiting get()
+2026-06-02 20:54:34,776 [DEBUG] yfinance: AAPL: yfinance received OHLC data: 2020-01-02 14:30:00 -> 2022-12-30 14:30:00
+2026-06-02 20:54:34,786 [DEBUG] yfinance: AAPL: OHLC after cleaning: 2020-01-02 09:30:00-05:00 -> 2022-12-30 09:30:00-05:00
+2026-06-02 20:54:34,842 [DEBUG] yfinance: AAPL: OHLC after combining events: 2020-01-02 00:00:00-05:00 -> 2022-12-30 00:00:00-05:00
+2026-06-02 20:54:34,848 [DEBUG] yfinance: AAPL: yfinance returning OHLC: 2020-01-02 00:00:00-05:00 -> 2022-12-30 00:00:00-05:00
+2026-06-02 20:54:34,848 [DEBUG] yfinance:   Exiting history()
+2026-06-02 20:54:34,848 [DEBUG] yfinance:  Exiting history()
+2026-06-02 20:54:34,855 [DEBUG] yfinance: Exiting download()
+2026-06-02 20:54:34,860 [WARNING] src.trading_sdk.data.client: Failed to write cache at C:\Users\omerl\BarIlan Projects\Third Year\B'_Semester\Vibe Coding\ex_2\EX2---Copy\data\raw\AAPL_2020-01-01_2023-01-01.parquet: Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
+A suitable version of pyarrow or fastparquet is required for parquet support.
+Trying to import the above resulted in these errors:
+ - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
+ - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
+2026-06-02 20:55:12,273 [INFO] src.trading_sdk.shared.config: Configuration Manager initialized successfully.
+2026-06-02 20:55:12,776 [DEBUG] yfinance: Entering download()
+2026-06-02 20:55:12,777 [DEBUG] yfinance: Disabling multithreading because DEBUG logging enabled
+2026-06-02 20:55:12,777 [DEBUG] yfinance:  Entering history()
+2026-06-02 20:55:12,785 [DEBUG] peewee: ('CREATE TABLE IF NOT EXISTS "_tz_kv" ("key" VARCHAR(255) NOT NULL PRIMARY KEY, "value" VARCHAR(255)) WITHOUT ROWID', [])
+2026-06-02 20:55:12,786 [DEBUG] peewee: ('SELECT "t1"."key", "t1"."value" FROM "_tz_kv" AS "t1" WHERE ("t1"."key" = ?) LIMIT ? OFFSET ?', ['AAPL', 1, 0])
+2026-06-02 20:55:13,128 [DEBUG] yfinance:   Entering history()
+2026-06-02 20:55:13,145 [DEBUG] yfinance: AAPL: Yahoo GET parameters: {'period1': '2020-01-01 00:00:00-05:00', 'period2': '2023-01-01 00:00:00-05:00', 'interval': '1d', 'includePrePost': False, 'events': 'div,splits,capitalGains'}
+2026-06-02 20:55:13,149 [DEBUG] yfinance:    Entering get()
+2026-06-02 20:55:13,149 [DEBUG] yfinance:     Entering _make_request()
+2026-06-02 20:55:13,149 [DEBUG] yfinance: url=https://query2.finance.yahoo.com/v8/finance/chart/AAPL
+2026-06-02 20:55:13,149 [DEBUG] yfinance: params={'period1': 1577854800, 'period2': 1672549200, 'interval': '1d', 'includePrePost': False, 'events': 'div,splits,capitalGains'}
+2026-06-02 20:55:13,149 [DEBUG] yfinance:      Entering _get_cookie_and_crumb()
+2026-06-02 20:55:13,149 [DEBUG] yfinance: cookie_mode = 'basic'
+2026-06-02 20:55:13,149 [DEBUG] yfinance:       Entering _get_cookie_and_crumb_basic()
+2026-06-02 20:55:13,149 [DEBUG] yfinance:        Entering _get_cookie_basic()
+2026-06-02 20:55:13,149 [DEBUG] yfinance:         Entering _load_cookie_curlCffi()
+2026-06-02 20:55:13,156 [DEBUG] peewee: ('CREATE TABLE IF NOT EXISTS "_cookieschema" ("strategy" VARCHAR(255) NOT NULL PRIMARY KEY, "fetch_date" DATETIME NOT NULL, "cookie_bytes" BLOB NOT NULL) WITHOUT ROWID', [])
+2026-06-02 20:55:13,156 [DEBUG] peewee: ('SELECT "t1"."strategy", "t1"."fetch_date", "t1"."cookie_bytes" FROM "_cookieschema" AS "t1" WHERE ("t1"."strategy" = ?) LIMIT ? OFFSET ?', ['curlCffi', 1, 0])
+2026-06-02 20:55:13,156 [DEBUG] yfinance:         Exiting _load_cookie_curlCffi()
+2026-06-02 20:55:13,156 [DEBUG] yfinance: reusing persistent cookie
+2026-06-02 20:55:13,156 [DEBUG] yfinance:        Exiting _get_cookie_basic()
+2026-06-02 20:55:13,159 [DEBUG] yfinance:        Entering _get_crumb_basic()
+2026-06-02 20:55:13,159 [DEBUG] yfinance:         Entering _get_cookie_basic()
+2026-06-02 20:55:13,159 [DEBUG] yfinance: reusing cookie
+2026-06-02 20:55:13,159 [DEBUG] yfinance:         Exiting _get_cookie_basic()
+2026-06-02 20:55:13,960 [DEBUG] yfinance: crumb = 'u.IVV5DdWKD'
+2026-06-02 20:55:13,960 [DEBUG] yfinance:        Exiting _get_crumb_basic()
+2026-06-02 20:55:13,960 [DEBUG] yfinance:       Exiting _get_cookie_and_crumb_basic()
+2026-06-02 20:55:13,960 [DEBUG] yfinance:      Exiting _get_cookie_and_crumb()
+2026-06-02 20:55:14,541 [DEBUG] yfinance: response code=200
+2026-06-02 20:55:14,541 [DEBUG] yfinance:     Exiting _make_request()
+2026-06-02 20:55:14,541 [DEBUG] yfinance:    Exiting get()
+2026-06-02 20:55:14,548 [DEBUG] yfinance: AAPL: yfinance received OHLC data: 2020-01-02 14:30:00 -> 2022-12-30 14:30:00
+2026-06-02 20:55:14,553 [DEBUG] yfinance: AAPL: OHLC after cleaning: 2020-01-02 09:30:00-05:00 -> 2022-12-30 09:30:00-05:00
+2026-06-02 20:55:14,583 [DEBUG] yfinance: AAPL: OHLC after combining events: 2020-01-02 00:00:00-05:00 -> 2022-12-30 00:00:00-05:00
+2026-06-02 20:55:14,590 [DEBUG] yfinance: AAPL: yfinance returning OHLC: 2020-01-02 00:00:00-05:00 -> 2022-12-30 00:00:00-05:00
+2026-06-02 20:55:14,590 [DEBUG] yfinance:   Exiting history()
+2026-06-02 20:55:14,590 [DEBUG] yfinance:  Exiting history()
+2026-06-02 20:55:14,593 [DEBUG] yfinance: Exiting download()
+2026-06-02 20:55:14,601 [WARNING] src.trading_sdk.data.client: Failed to write cache at C:\Users\omerl\BarIlan Projects\Third Year\B'_Semester\Vibe Coding\ex_2\EX2---Copy\data\raw\AAPL_2020-01-01_2023-01-01.parquet: Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
+A suitable version of pyarrow or fastparquet is required for parquet support.
+Trying to import the above resulted in these errors:
+ - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
+ - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.

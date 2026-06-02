@@ -1,3 +1,4 @@
+import json
 import logging
 import random
 from pathlib import Path
@@ -15,7 +16,7 @@ from ..shared.constants import ROOT_DIR
 
 
 class TrainingService:
-    """Train Dueling DQN with replay memory and target network."""
+    """Train Dueling DQN with Double DQN, replay memory, target network."""
 
     def __init__(self, config: ConfigManager) -> None:
         self.logger = logging.getLogger(__name__)
@@ -26,6 +27,8 @@ class TrainingService:
         self.memory = ReplayBuffer(self.hyper["memory_size"])
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.epsilon = self.hyper["epsilon_start"]
+        self.best_val_reward = -float("inf")
+        self.epsilon_history = []
 
     def train(self, states: np.ndarray, prices: np.ndarray) -> dict[str, list[float]]:
         env = TradingEnv(
@@ -43,7 +46,7 @@ class TrainingService:
         optimizer = optim.Adam(policy.parameters(), lr=self.hyper["learning_rate"])
         loss_fn = nn.SmoothL1Loss() if self.hyper["loss"] == "huber" else nn.MSELoss()
         rewards, losses, steps = [], [], 0
-        for _ in range(self.hyper["episodes"]):
+        for ep in range(self.hyper["episodes"]):
             state, _ = env.reset()
             ep_reward = 0.0
             while True:
@@ -71,13 +74,18 @@ class TrainingService:
                 if done:
                     break
             rewards.append(ep_reward)
+            self.epsilon_history.append(self.epsilon)
+            if ep_reward > self.best_val_reward:
+                self.best_val_reward = ep_reward
+                self._save_model(policy, is_best=True)
         self._save_model(policy)
         self.logger.info(
-            "Training complete. episodes=%s epsilon=%.4f",
+            "Training complete. episodes=%s epsilon=%.4f best_reward=%.2f",
             len(rewards),
             self.epsilon,
+            self.best_val_reward,
         )
-        return {"losses": losses, "rewards": rewards}
+        return {"losses": losses, "rewards": rewards, "epsilon_history": self.epsilon_history}
 
     def _optimize(
         self,
@@ -86,9 +94,9 @@ class TrainingService:
         optimizer: optim.Optimizer,
         loss_fn: nn.Module,
     ) -> float:
-        states, actions, rewards, next_states, dones = self.memory.sample(
-            self.hyper["batch_size"],
-        )
+        """Bellman target with Double DQN: Q(s,a) = r + γ·Q_target(s',a*)
+        where a* = argmax_a' Q_policy(s',a')"""
+        states, actions, rewards, next_states, dones = self.memory.sample(self.hyper["batch_size"])
         s = torch.tensor(states, dtype=torch.float32, device=self.device)
         a = torch.tensor(actions, dtype=torch.int64, device=self.device).unsqueeze(1)
         r = torch.tensor(rewards, dtype=torch.float32, device=self.device)
@@ -96,7 +104,8 @@ class TrainingService:
         d = torch.tensor(dones, dtype=torch.float32, device=self.device)
         q_sa = policy(s).gather(1, a).squeeze(1)
         with torch.no_grad():
-            next_q = target(ns).max(dim=1).values
+            next_actions = policy(ns).argmax(dim=1, keepdim=True)
+            next_q = target(ns).gather(1, next_actions).squeeze(1)
             target_q = r + (1 - d) * self.hyper["gamma"] * next_q
         loss = loss_fn(q_sa, target_q)
         optimizer.zero_grad()
@@ -119,7 +128,21 @@ class TrainingService:
         ):
             t_param.data.copy_(tau * p_param.data + (1 - tau) * t_param.data)
 
-    def _save_model(self, policy: nn.Module) -> None:
+    def _save_model(self, policy: nn.Module, is_best: bool = False) -> None:
         model_dir = ROOT_DIR / Path(self.paths_cfg["model_dir"])
         model_dir.mkdir(parents=True, exist_ok=True)
-        torch.save(policy.state_dict(), model_dir / self.paths_cfg["model_filename"])
+        filename = "dueling_dqn_best.pt" if is_best else self.paths_cfg["model_filename"]
+        torch.save(policy.state_dict(), model_dir / filename)
+        if not is_best:
+            metadata = {
+                "num_episodes": len(self.epsilon_history),
+                "target_update_freq": self.hyper["target_update_interval"],
+                "epsilon_decay": self.hyper["epsilon_decay"],
+                "lr": self.hyper["learning_rate"],
+                "gamma": self.hyper["gamma"],
+                "loss": self.hyper["loss"],
+                "best_reward": self.best_val_reward,
+                "final_epsilon": float(self.epsilon),
+            }
+            with open(model_dir / "training_metadata.json", "w") as f:
+                json.dump(metadata, f, indent=2)

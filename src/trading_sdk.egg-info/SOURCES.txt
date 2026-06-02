@@ -16,6 +16,7 @@ src/trading_sdk/env/__init__.py
 src/trading_sdk/env/reward.py
 src/trading_sdk/env/trading_env.py
 src/trading_sdk/memory/__init__.py
+src/trading_sdk/memory/prioritized_replay_buffer.py
 src/trading_sdk/memory/replay_buffer.py
 src/trading_sdk/model/__init__.py
 src/trading_sdk/model/network.py
