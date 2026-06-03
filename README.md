@@ -296,12 +296,9 @@ All parameters are managed in `config/setup.json`:
 בסיום האימון מורץ Backtest דטרמיניסטי ($\epsilon=0$) על חלון ה-Test שלא נראה במהלך האימון.
 המדדים המחושבים מנותחים על גבי ה-Equity Curve, וכוללים: Win Rate (אחוז ההצלחה של העסקאות), השוואה לאסטרטגיית "קנה והחזק" (Buy-and-Hold), ציון Sharpe Ratio ו-Max Drawdown.
 
-> [!IMPORTANT]
-> **[צילום מסך נדרש: גרף Backtest]**
-> *אנא הוסף כאן צילום מסך של גרף ה-Backtest.*
-> `![Backtest Results](data/results/backtest_results.png)`
 
----
+<img width="1226" height="599" alt="image" src="https://github.com/user-attachments/assets/93b2667c-5209-4dde-972c-43f8a3571bca" />
+
 
 ## 10. מדריך למשתמש: ממשק גרפי (GUI)
 
