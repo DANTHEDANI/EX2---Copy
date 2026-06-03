@@ -24,7 +24,7 @@ def analyze_epsilon_decay():
         )
         return
 
-    with open(metadata_file, "r") as f:
+    with open(metadata_file) as f:
         metadata = json.load(f)
 
     print("=" * 70)
@@ -35,9 +35,9 @@ def analyze_epsilon_decay():
     epsilon_end = metadata.get("epsilon_end", 0.01)
     epsilon_decay = metadata.get("epsilon_decay", 200000)
 
-    print(f"\nEpsilon Schedule:")
+    print("\nEpsilon Schedule:")
     print(f"  Start: {epsilon_start:.4f} (100% exploration)")
-    print(f"  End:   {epsilon_end:.4f} ({epsilon_end*100:.1f}% exploration)")
+    print(f"  End:   {epsilon_end:.4f} ({epsilon_end * 100:.1f}% exploration)")
     print(f"  Decay: {epsilon_decay:,} steps")
 
     # Calculate decay constant
@@ -50,9 +50,7 @@ def analyze_epsilon_decay():
     for step in milestones:
         epsilon = max(epsilon_end, epsilon_start - decay * step)
         exploration_pct = epsilon * 100
-        print(
-            f"  Step {step:>7,}: epsilon={epsilon:.4f} ({exploration_pct:>5.1f}% exploration)"
-        )
+        print(f"  Step {step:>7,}: epsilon={epsilon:.4f} ({exploration_pct:>5.1f}% exploration)")
 
     # Impact discussion
     print("\n[Impact on Trading Behavior]")

@@ -278,11 +278,11 @@ files = {
     "data/preprocessor.py": preprocessor_code,
     "env/reward.py": reward_code,
     "env/trading_env.py": env_code,
-    "model/network.py": network_code
+    "model/network.py": network_code,
 }
 
 for path, code in files.items():
-    with open(os.path.join(base, path), 'w', encoding='utf-8') as f:
+    with open(os.path.join(base, path), "w", encoding="utf-8") as f:
         f.write(code)
-        
+
 print("Updated all target files successfully.")

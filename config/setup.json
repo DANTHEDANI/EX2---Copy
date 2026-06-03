@@ -6,7 +6,7 @@
         "tau": 0.005,
         "epsilon_start": 1.0,
         "epsilon_end": 0.05,
-        "epsilon_decay": 200000,
+        "epsilon_decay": 3000,
         "memory_size": 100000,
         "target_update_interval": 250,
         "episodes": 8,
@@ -18,7 +18,7 @@
         "window_size": 30,
         "commission_fee": 0.001,
         "slippage_fee": 0.001,
-        "invalid_action_penalty": 5.0,
+        "invalid_action_penalty": 0.0,
         "sharpe_lambda": 0.1
     },
     "data": {

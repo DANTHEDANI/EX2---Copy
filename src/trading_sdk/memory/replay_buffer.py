@@ -27,13 +27,7 @@ class ReplayBuffer:
         state, action, reward, next_state, done = zip(*batch, strict=False)
 
         # Vertically stack batches for contiguous memory placement
-        return (
-            np.concatenate(state),
-            action,
-            reward,
-            np.concatenate(next_state),
-            done
-        )
+        return (np.concatenate(state), action, reward, np.concatenate(next_state), done)
 
     def __len__(self) -> int:
         return len(self.buffer)

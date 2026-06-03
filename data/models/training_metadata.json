@@ -1,0 +1,10 @@
+{
+  "num_episodes": 8,
+  "target_update_freq": 250,
+  "epsilon_decay": 3000,
+  "lr": 0.00025,
+  "gamma": 0.99,
+  "loss": "huber",
+  "best_reward": 17066.869058737575,
+  "final_epsilon": 0.05
+}

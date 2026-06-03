@@ -1,0 +1,101 @@
+classDiagram
+    %% Core SDK Facade
+    class TradingSDK {
+        +ConfigManager config_manager
+        +YFinanceDataClient data_client
+        +FeatureEngineer feature_engineer
+        +TrainingService trainer
+        +BacktestService backtester
+        +InferenceService inferencer
+        +run_training_pipeline()
+        +evaluate_strategy()
+        +predict_latest()
+    }
+
+    %% Configuration
+    class ConfigManager {
+        +dict setup
+        +dict get_hyperparameters()
+        +dict get_environment_config()
+    }
+
+    %% Data Processing
+    class YFinanceDataClient {
+        +Path cache_dir
+        +download_ticker(ticker, start, end) DataFrame
+        -_fetch_and_cache()
+    }
+
+    class FeatureEngineer {
+        +list feature_cols
+        +engineer_features(df)
+        +split_data(states, prices)
+    }
+
+    %% Services
+    class TrainingService {
+        +dict hyper
+        +DuelingDQNNetwork policy_net
+        +DuelingDQNNetwork target_net
+        +train(states, prices, callback) dict
+        -_optimize_model()
+    }
+
+    class BacktestService {
+        +dict hyper
+        +DuelingDQNNetwork policy_net
+        +run(states, prices) dict
+    }
+
+    class InferenceService {
+        +DuelingDQNNetwork policy_net
+        +predict(state_window) tuple
+    }
+
+    %% Core Logic
+    class DuelingDQNNetwork {
+        +nn.Sequential conv_backbone
+        +nn.Sequential value_stream
+        +nn.Sequential advantage_stream
+        +forward(x) tensor
+    }
+
+    class TradingEnv {
+        +ndarray states
+        +ndarray prices
+        +float cash
+        +int position
+        +step(action) tuple
+        +reset() ndarray
+    }
+
+    class RewardFunction {
+        +float commission
+        +float slippage
+        +calculate(prev_eq, curr_eq, trade_value) float
+    }
+
+    class ReplayBuffer {
+        +deque buffer
+        +push(state, action, reward, next_state, done)
+        +sample(batch_size) tuple
+    }
+
+    %% Relationships
+    TradingSDK --> ConfigManager : uses
+    TradingSDK --> YFinanceDataClient : uses
+    TradingSDK --> FeatureEngineer : uses
+    TradingSDK --> TrainingService : orchestrates
+    TradingSDK --> BacktestService : orchestrates
+    TradingSDK --> InferenceService : orchestrates
+
+    TrainingService --> DuelingDQNNetwork : trains
+    TrainingService --> TradingEnv : interacts with
+    TrainingService --> ReplayBuffer : stores/samples
+
+    BacktestService --> DuelingDQNNetwork : uses
+    BacktestService --> TradingEnv : interacts with
+
+    InferenceService --> DuelingDQNNetwork : evaluates
+
+    TradingEnv --> RewardFunction : computes reward

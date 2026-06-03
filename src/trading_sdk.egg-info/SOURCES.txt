@@ -1,6 +1,7 @@
 README.md
 pyproject.toml
 src/trading_sdk/__init__.py
+src/trading_sdk/api.py
 src/trading_sdk/main.py
 src/trading_sdk/sdk.py
 src/trading_sdk.egg-info/PKG-INFO

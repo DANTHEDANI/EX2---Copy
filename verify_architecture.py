@@ -1,19 +1,22 @@
 #!/usr/bin/env python3
 """Architecture verification: Confirm all layers and dependencies are correct."""
+
 import sys
 from pathlib import Path
+
 
 def check_file_exists(path: str) -> bool:
     """Check if a source file exists."""
     p = Path(path)
     return p.exists()
 
+
 def main() -> None:
     """Verify architecture completeness."""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("SYSTEM ARCHITECTURE VERIFICATION")
-    print("="*70 + "\n")
-    
+    print("=" * 70 + "\n")
+
     # Define all required components
     components = {
         "Configuration Layer": {
@@ -49,7 +52,7 @@ def main() -> None:
             "main()": "src/trading_sdk/main.py",
         },
     }
-    
+
     all_ok = True
     for layer, items in components.items():
         print(f"[Layer] {layer}")
@@ -60,11 +63,11 @@ def main() -> None:
             if not exists:
                 all_ok = False
         print()
-    
-    print("="*70)
+
+    print("=" * 70)
     print("DEPENDENCY VERIFICATION")
-    print("="*70 + "\n")
-    
+    print("=" * 70 + "\n")
+
     dependencies = {
         "CLI (main.py)": [
             "Imports: TradingSDK",
@@ -87,17 +90,17 @@ def main() -> None:
             "All parameters config-driven",
         ],
     }
-    
+
     for component, rules in dependencies.items():
         print(f"[Component] {component}")
         for rule in rules:
             print(f"  [OK] {rule}")
         print()
-    
-    print("="*70)
+
+    print("=" * 70)
     print("ACYCLIC DEPENDENCY GRAPH")
-    print("="*70 + "\n")
-    
+    print("=" * 70 + "\n")
+
     graph = """
     CLI (main.py)
         DOWN
@@ -116,33 +119,34 @@ def main() -> None:
     [OK] Strict layering
     """
     print(graph)
-    
-    print("="*70)
+
+    print("=" * 70)
     print("CONFIGURATION VERIFICATION")
-    print("="*70 + "\n")
-    
+    print("=" * 70 + "\n")
+
     config_files = {
         "setup.json": "config/setup.json",
         "rate_limits.json": "config/rate_limits.json",
         "logging_config.json": "config/logging_config.json",
     }
-    
+
     print("[Configuration Files]")
     for name, path in config_files.items():
         exists = check_file_exists(path)
         status = "[OK]" if exists else "[WARN]"
         print(f"  {status} {name}: {path}")
     print()
-    
-    print("="*70)
+
+    print("=" * 70)
     if all_ok:
         print("RESULT: ALL COMPONENTS PRESENT")
-        print("="*70 + "\n")
+        print("=" * 70 + "\n")
         return 0
     else:
         print("RESULT: MISSING COMPONENTS")
-        print("="*70 + "\n")
+        print("=" * 70 + "\n")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -6,6 +6,7 @@ class DuelingDQNNetwork(nn.Module):
     """
     Dueling DQN with Conv1D Backbone for temporal financial state processing.
     """
+
     def __init__(
         self, window_size: int = 30, features_count: int = 10, action_dim: int = 3
     ) -> None:
@@ -16,21 +17,15 @@ class DuelingDQNNetwork(nn.Module):
             nn.Conv1d(in_channels=features_count, out_channels=32, kernel_size=3, padding=1),
             nn.ReLU(),
             nn.Conv1d(in_channels=32, out_channels=64, kernel_size=3, padding=1),
-            nn.ReLU()
+            nn.ReLU(),
         )
 
         flatten_dim = 64 * window_size
 
-        self.value_stream = nn.Sequential(
-            nn.Linear(flatten_dim, 256),
-            nn.ReLU(),
-            nn.Linear(256, 1)
-        )
+        self.value_stream = nn.Sequential(nn.Linear(flatten_dim, 256), nn.ReLU(), nn.Linear(256, 1))
 
         self.advantage_stream = nn.Sequential(
-            nn.Linear(flatten_dim, 256),
-            nn.ReLU(),
-            nn.Linear(256, action_dim)
+            nn.Linear(flatten_dim, 256), nn.ReLU(), nn.Linear(256, action_dim)
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

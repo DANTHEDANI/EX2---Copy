@@ -34,3 +34,13 @@ class InferenceService:
             state_t = state_t.unsqueeze(0)
         with torch.no_grad():
             return int(self.model(state_t).argmax(dim=1).item())
+
+    def predict_detailed(self, current_state: np.ndarray | None) -> dict:
+        if current_state is None:
+            return {"action": 1, "q_values": [0.0, 0.0, 0.0]}
+        state_t = torch.tensor(current_state, dtype=torch.float32, device=self.device)
+        if state_t.ndim == 2:
+            state_t = state_t.unsqueeze(0)
+        with torch.no_grad():
+            q_vals = self.model(state_t)[0].cpu().numpy()
+            return {"action": int(np.argmax(q_vals)), "q_values": [float(x) for x in q_vals]}

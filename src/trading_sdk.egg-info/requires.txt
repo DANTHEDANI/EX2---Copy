@@ -6,6 +6,8 @@ numpy>=1.26.0
 scikit-learn>=1.4.0
 pyarrow>=15.0.0
 matplotlib>=3.10.9
+fastapi>=0.136.3
+uvicorn>=0.48.0
 
 [dev]
 pytest>=8.0.0

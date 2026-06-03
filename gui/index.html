@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading SDK - Pro Console</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <!-- Plotly CDN for Charts -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background">
+        <div class="blob blob1"></div>
+        <div class="blob blob2"></div>
+    </div>
+    
+    <div class="container">
+        <header>
+            <h1><span class="gradient-text">Trading SDK</span> Console</h1>
+            <p>Dueling DQN Reinforcement Learning Platform</p>
+        </header>
+
+        <main>
+            <div class="glass-panel control-panel">
+                <h2>Parameters</h2>
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="ticker">Ticker</label>
+                        <input type="text" id="ticker" value="AAPL" placeholder="AAPL">
+                    </div>
+                    <div class="input-group">
+                        <label for="start_date">Start Date</label>
+                        <input type="date" id="start_date" value="2020-01-01">
+                    </div>
+                    <div class="input-group">
+                        <label for="end_date">End Date</label>
+                        <input type="date" id="end_date" value="2023-01-01">
+                    </div>
+                    <div class="input-group">
+                        <label for="episodes">Episodes</label>
+                        <input type="number" id="episodes" value="8" min="1">
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button id="btn-chart" class="btn outline">Load Chart</button>
+                    <button id="btn-train" class="btn primary">
+                        <span class="btn-text">Train Model</span>
+                        <div class="spinner"></div>
+                    </button>
+                    <button id="btn-backtest" class="btn secondary">
+                        <span class="btn-text">Run Backtest</span>
+                        <div class="spinner"></div>
+                    </button>
+                    <button id="btn-infer" class="btn accent">
+                        <span class="btn-text">Predict Latest</span>
+                        <div class="spinner"></div>
+                    </button>
+                </div>
+                
+                <div id="status-bar" class="status-bar">
+                    <span id="status-text">Ready.</span>
+                </div>
+
+                <!-- Live Training Progress Bar -->
+                <div id="progress-container" class="progress-container" style="display: none;">
+                    <div class="progress-labels">
+                        <span id="progress-ep">Episode: 0/0</span>
+                        <span id="progress-reward">Reward: 0.0</span>
+                        <span id="progress-eps">Epsilon: 0.0</span>
+                    </div>
+                    <div class="progress-track">
+                        <div id="progress-fill" class="progress-fill"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inference Result Card -->
+            <div id="inference-card" class="glass-panel inference-card" style="display: none;">
+                <h2>Latest Prediction</h2>
+                <div class="inference-result">
+                    <div class="action-badge" id="inf-action">HOLD</div>
+                    <div class="inf-details">
+                        <p id="inf-explanation">Analyzing...</p>
+                        <div class="q-values">
+                            <span class="q-val">SELL: <b id="q-sell">0</b></span>
+                            <span class="q-val">HOLD: <b id="q-hold">0</b></span>
+                            <span class="q-val">BUY: <b id="q-buy">0</b></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart Panel -->
+            <div class="glass-panel chart-panel" id="chart-panel" style="display: none;">
+                <div id="candlestick-chart" style="width:100%;height:400px;"></div>
+            </div>
+
+            <!-- Analysis Results -->
+            <div class="glass-panel results-panel">
+                <h2>Analysis Results</h2>
+                <div id="results-content" class="results-content empty">
+                    <p>No results yet. Run a training or backtest session.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

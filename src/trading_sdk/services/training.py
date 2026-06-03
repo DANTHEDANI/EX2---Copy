@@ -30,7 +30,9 @@ class TrainingService:
         self.best_val_reward = -float("inf")
         self.epsilon_history = []
 
-    def train(self, states: np.ndarray, prices: np.ndarray) -> dict[str, list[float]]:
+    def train(
+        self, states: np.ndarray, prices: np.ndarray, progress_callback=None
+    ) -> dict[str, list[float]]:
         env = TradingEnv(
             states_3d=states,
             prices=prices,
@@ -53,7 +55,9 @@ class TrainingService:
                 if random.random() < self.epsilon:
                     action = env.action_space.sample()
                 else:
-                    state_t = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
+                    state_t = torch.tensor(
+                        state, dtype=torch.float32, device=self.device
+                    ).unsqueeze(0)
                     with torch.no_grad():
                         action = int(policy(state_t).argmax(dim=1).item())
                 next_state, reward, terminated, truncated, _ = env.step(action)
@@ -75,6 +79,13 @@ class TrainingService:
                     break
             rewards.append(ep_reward)
             self.epsilon_history.append(self.epsilon)
+
+            if progress_callback:
+                last_loss = losses[-1] if losses else 0.0
+                progress_callback(
+                    ep + 1, self.hyper["episodes"], ep_reward, last_loss, self.epsilon
+                )
+
             if ep_reward > self.best_val_reward:
                 self.best_val_reward = ep_reward
                 self._save_model(policy, is_best=True)
@@ -114,9 +125,9 @@ class TrainingService:
         return float(loss.item())
 
     def _decay_epsilon(self) -> None:
-        decay = (
-            self.hyper["epsilon_start"] - self.hyper["epsilon_end"]
-        ) / max(self.hyper["epsilon_decay"], 1)
+        decay = (self.hyper["epsilon_start"] - self.hyper["epsilon_end"]) / max(
+            self.hyper["epsilon_decay"], 1
+        )
         self.epsilon = max(self.hyper["epsilon_end"], self.epsilon - decay)
 
     def _soft_update(self, policy: nn.Module, target: nn.Module) -> None:

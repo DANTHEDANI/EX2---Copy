@@ -1,0 +1,78 @@
+graph TD
+    %% Main Architecture Layers
+    subgraph UI ["Interface Layer"]
+        CLI[main.py CLI]
+        GUI[Web GUI FastAPI]
+    end
+
+    subgraph SDK ["Facade Layer"]
+        Facade[TradingSDK]
+    end
+
+    subgraph Config ["Configuration Layer"]
+        CM[ConfigManager]
+        JSON[(setup.json)]
+    end
+
+    subgraph Data ["Data Layer"]
+        YF[YFinanceDataClient]
+        FE[FeatureEngineer]
+        RawDB[(Parquet Cache)]
+    end
+
+    subgraph Services ["Service Layer"]
+        TS[TrainingService]
+        BS[BacktestService]
+        IS[InferenceService]
+        MS[MetricsService]
+        PS[PlotService]
+    end
+
+    subgraph BusinessLogic ["Core Business Logic"]
+        subgraph RL ["Reinforcement Learning"]
+            DQN[DuelingDQNNetwork]
+            ENV[TradingEnv]
+            REWARD[RewardFunction]
+        end
+        subgraph Memory ["Memory Buffer"]
+            RB[ReplayBuffer / PrioritizedReplayBuffer]
+        end
+    end
+
+    %% Data Flow & Dependencies
+    CLI --> Facade
+    GUI --> Facade
+
+    Facade --> CM
+    Facade --> YF
+    Facade --> TS
+    Facade --> BS
+    Facade --> IS
+    Facade --> PS
+
+    CM --> JSON
+
+    YF --> RawDB
+    YF --> FE
+
+    TS --> DQN
+    TS --> ENV
+    TS --> RB
+
+    BS --> DQN
+    BS --> ENV
+    BS --> MS
+
+    IS --> DQN
+    IS --> FE
+
+    ENV --> REWARD
+
+    %% Styling
+    classDef layer fill:#f9f9f9,stroke:#333,stroke-width:2px;
+    classDef logic fill:#d4e6f1,stroke:#2980b9,stroke-width:2px;
+    classDef db fill:#fcf3cf,stroke:#f1c40f,stroke-width:2px;
+
+    class UI,SDK,Config,Data,Services layer;
+    class RL,Memory logic;
+    class JSON,RawDB db;

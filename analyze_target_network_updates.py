@@ -26,7 +26,7 @@ def analyze_target_network_updates():
         )
         return
 
-    with open(metadata_file, "r") as f:
+    with open(metadata_file) as f:
         metadata = json.load(f)
 
     print("=" * 70)
@@ -37,13 +37,13 @@ def analyze_target_network_updates():
     num_episodes = metadata.get("num_episodes", 8)
     best_reward = metadata.get("best_reward", 0.0)
 
-    print(f"\n[Current Configuration]")
+    print("\n[Current Configuration]")
     print(f"  Target update frequency: {target_freq:,} steps")
     print(f"  Number of episodes: {num_episodes}")
     print(f"  Best episode reward: {best_reward:.2f}")
 
-    print(f"\n[Update Mechanism: Soft Update (Polyak Averaging)]")
-    print(f"""
+    print("\n[Update Mechanism: Soft Update (Polyak Averaging)]")
+    print("""
   θ_target ← τ * θ_policy + (1-τ) * θ_target
   
   Where τ = 0.001 (1% policy weight)
@@ -54,7 +54,7 @@ def analyze_target_network_updates():
   - More stable than hard updates (which replace all weights at once)
 """)
 
-    print(f"\n[Impact of Different Update Frequencies]")
+    print("\n[Impact of Different Update Frequencies]")
     print(f"""
 Frequent Updates (e.g., τ ≠ 0, every 100 steps):
   ✓ Target network tracks policy network closely
@@ -84,8 +84,8 @@ Recommendation for trading:
   - For noisy markets: keep τ around 0.001 for softness
 """)
 
-    print(f"\n[Double DQN Benefit with Target Networks]")
-    print(f"""
+    print("\n[Double DQN Benefit with Target Networks]")
+    print("""
 Without Double DQN (standard DQN):
   max_a' Q_target(s',a')  ← Can overestimate (picks high values)
   
@@ -96,7 +96,7 @@ The separation of action selection (policy) and action evaluation (target)
 reduces optimism bias, especially important when target updates are infrequent.
 """)
 
-    print(f"\n[Loss Function & Target Stability]")
+    print("\n[Loss Function & Target Stability]")
     loss_fn = metadata.get("loss_function", "huber")
     print(f"  Loss function: {loss_fn}")
     if loss_fn == "huber":

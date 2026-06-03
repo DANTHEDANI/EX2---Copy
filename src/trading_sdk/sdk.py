@@ -29,7 +29,7 @@ class TradingSDK:
         self.trainer = TrainingService(self.config_manager)
         self.backtester = BacktestService(self.config_manager)
 
-    def run_training_pipeline(self, ticker: str) -> None:
+    def run_training_pipeline(self, ticker: str, progress_callback=None) -> None:
         config_data = self.config_manager.setup["data"]
         raw_df = self.data_client.download_ticker(
             ticker=ticker,
@@ -43,7 +43,9 @@ class TradingSDK:
         states, prices = self._build_states_and_prices(raw_df)
         train_states, _, _ = self.feature_engineer.split_data(states)
         train_prices, _, _ = self.feature_engineer.split_data(prices)
-        history = self.trainer.train(train_states, train_prices)
+        history = self.trainer.train(
+            train_states, train_prices, progress_callback=progress_callback
+        )
         plot_learning_curve(
             history["losses"],
             history["rewards"],
@@ -78,4 +80,4 @@ class TradingSDK:
             close = close.iloc[:, 0]
         clean_close = close.dropna().to_numpy(dtype=np.float32)
         offset = len(clean_close) - len(states)
-        return states, clean_close[max(offset, 0):]
+        return states, clean_close[max(offset, 0) :]

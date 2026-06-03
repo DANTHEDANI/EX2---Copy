@@ -37,11 +37,7 @@ class BacktestService:
             invalid_action_penalty=self.env_cfg["invalid_action_penalty"],
         )
         model = DuelingDQNNetwork(action_dim=env.action_space.n).to(self.device)
-        model_path = (
-            ROOT_DIR
-            / Path(self.paths_cfg["model_dir"])
-            / self.paths_cfg["model_filename"]
-        )
+        model_path = ROOT_DIR / Path(self.paths_cfg["model_dir"]) / self.paths_cfg["model_filename"]
         if model_path.exists():
             model.load_state_dict(torch.load(model_path, map_location=self.device))
         model.eval()

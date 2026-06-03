@@ -1,5 +1,3 @@
-import os
-
 patch_script = """
 import os
 

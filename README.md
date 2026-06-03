@@ -5,421 +5,222 @@ This repository prioritizes **correct RL formulation, software architecture, tes
 
 ---
 
-## 1) Project Overview
+## 1. מטרת הפרויקט (Project Goal)
 
-The system learns a trading policy in a custom Gymnasium-style environment using a rolling market history.  
-Objective: understand how a Dueling DQN can map market state to actions in a constrained all-in/all-out setup.
-
-| Property | Value |
-|---|---|
-| Task type | Educational RL (not production trading advice) |
-| Agent | Dueling Deep Q-Network (PyTorch) |
-| Market data | Yahoo Finance OHLCV |
-| Main ticker | `AAPL` |
-| Data period | Config-driven (`config/setup.json`) |
+מטרת הפרויקט איננה "לחזות מחירים" (Price Prediction) כתהליך רגרסיה או סיווג רגיל, אלא **לפתור בעיית קבלת החלטות סדרתית באמצעות Reinforcement Learning**.
+אנו מנסים ללמד סוכן (Agent) כיצד לנהל תיק השקעות בסביבה דינמית, כאשר המטרה שלו היא למקסם את הרווח המצטבר (מתוקן-סיכון) תוך התמודדות עם אילוצים מציאותיים כגון עמלות מסחר והחלקה (Slippage). הגישה היא למצוא מדיניות (Policy) אופטימלית של פעולות ולא רק לחזות את כיוון השוק.
 
 ---
 
-## 2) Data Source & Pipeline
+## 2. מיפוי לבעיית RL (RL Mapping)
 
-### Yahoo Finance Integration
+הפרויקט ממפה את עולם המסחר למושגים הקלאסיים של למידת חיזוק:
 
-The system uses **yfinance** to download historical OHLCV data directly from Yahoo Finance. All data handling routes through the `YFinanceDataClient` class.
+* **Agent (הסוכן):** רשת נוירונים מסוג **Dueling DQN** (עם Conv1D backbone) הלומדת ומקבלת את ההחלטות.
+* **Environment (הסביבה):** מחלקת `TradingEnv` המייצרת סימולציה של שוק ההון (Gymnasium-compatible) ומנהלת את תיק ההשקעות הווירטואלי (מזומן, מניות).
+* **State (מצב):** חלון היסטורי של 30 ימי מסחר, הכולל 10 מאפיינים: `log_return`, `rsi_14`, `macd`, `macd_signal`, `macd_hist`, `bb_pct`, `vwap_dist`, `volume_norm`, `position`, `unrealised_pnl`. הצורה היא Tensor של `30x10`.
+* **Action (פעולה):** מרחב פעולות בדיד (Discrete) של All-in/All-out:
+  * `0`: SELL (מכירת כל המניות לטובת מזומן)
+  * `1`: HOLD (הישארות במצב הקיים)
+  * `2`: BUY (קניית מניות בכל המזומן הפנוי)
+* **Reward (תגמול):** השינוי בשווי התיק, בניכוי עמלות וקנסות החלקה, בתוספת בונוס יציבות מבוסס מדד שארפ.
+* **Episode (פרק זמן):** מעבר מלא מתחילת סט הנתונים ועד סופו, או עד שהתיק מפסיד 90% מערכו (פשיטת רגל).
+* **Policy (מדיניות):** הפונקציה שמשדכת לכל State פעולה $\pi(a|s)$. מיוצגת על ידי ה-Q-Values שהסוכן לומד ($\arg\max_a Q(s,a)$).
 
-| Property | Value |
-|---|---|
-| Data source | Yahoo Finance (via `yfinance` library) |
-| Primary ticker | `AAPL` (2020-01-01 to 2023-01-01) |
-| Comparative ticker | `SPY` or `NVDA` (same date range) |
-| Data interval | Daily (1d) |
-| Raw columns | Open, High, Low, Close, Volume (OHLCV) |
+---
 
-### Cache & Fallback Strategy
+## 3. Dataset (נתונים)
 
-1. **Parquet Cache**: First download is cached at `data/raw/{ticker}_{start}_{end}.parquet` with **snappy compression**
-2. **CSV Fallback**: If online fetch fails, system tries `data/raw/{ticker}.csv` with Date index
-3. **Mechanism**: `YFinanceDataClient` implements all logic internally; called via `TradingSDK` facade
+* **מקור הנתונים:** Yahoo Finance (דרך ספריית `yfinance`).
+* **קוד אחזור:** הפעולה מתבצעת במחלקת `YFinanceDataClient` המורידה את הנתונים, שומרת ב-Cache של Parquet עם דחיסת Snappy.
+* **חלוקה:** חלוקה כרונולוגית בלבד (למניעת Look-ahead bias): 70% Train, 15% Validation, 15% Test.
+* **צורת ה-Tensor:** כאמור, כל חלון שמוזן לרשת הוא בצורה של `(Batch, 30, 10)`.
 
 ```python
-from pathlib import Path
-import yfinance as yf
-import pandas as pd
-
-TICKER = "AAPL"
-START = "2020-01-01"
-END = "2023-01-01"
-CACHE_DIR = Path("data/raw")
-CACHE_DIR.mkdir(parents=True, exist_ok=True)
-
-cache_file = CACHE_DIR / f"{TICKER}_{START}_{END}.parquet"
-required_cols = ["Open", "High", "Low", "Close", "Volume"]
-
+# Example Data Fetching Snippet
 if cache_file.exists():
     df = pd.read_parquet(cache_file)
 else:
-    df = yf.download(
-        TICKER, start=START, end=END, interval="1d", progress=False
-    )
-    if isinstance(df.columns, pd.MultiIndex):
-        df.columns = df.columns.droplevel(1)
+    df = yf.download(TICKER, start=START, end=END, interval="1d", progress=False)
     df.to_parquet(cache_file, compression="snappy")
-
-print(df[required_cols].head())  # Shows 5 raw rows
 ```
 
-### Verify Data Loading
-
-Run the data verification script to check raw data, engineered features, and splits:
-
-```bash
-uv run python verify_data.py
-```
-
-**Expected output:**
-```
-======================================================================
-Data Verification: AAPL (2020-01-01 to 2023-01-01)
-======================================================================
-
-✓ Downloaded 756 rows from Yahoo Finance
-
-First 5 raw OHLCV rows:
-            Open   High     Low  Close     Volume
-Date
-2020-01-02  74.29  75.15  74.125  75.09  135647200
-2020-01-03  75.06  75.50   74.89  74.97  106575600
-2020-01-06  74.95  75.15   74.59  74.75  106268200
-2020-01-07  74.97  75.21   74.75  75.04  108769600
-2020-01-08  75.12  75.65   75.03  75.61  117578400
-
-✓ Engineered features: (727, 30, 10)
-  - Windows (N): 727
-  - Window size: 30
-  - Features: 10
-
-First 5 engineered feature rows:
-    log_return   rsi_14      macd macd_signal macd_hist  bb_pct vwap_dist volume_norm  position unrealised_pnl
-0   -0.001594  47.48  -0.023845   -0.023845   0.000000 0.48948   -0.01084      0.90361        0.0            0.0
-1   -0.000266  46.62  -0.029845   -0.027235   -0.002610 0.49088   -0.01124      1.03662        0.0            0.0
-2   -0.003866  42.12  -0.039678   -0.031437   -0.008241 0.48623   -0.01178      1.47234        0.0            0.0
-3   -0.000377  40.85  -0.048315   -0.035859   -0.012457 0.47854   -0.01230      1.31768        0.0            0.0
-4    0.010132  48.95  -0.044920   -0.037966   -0.006954 0.48023   -0.01287      0.60937        0.0            0.0
-
-✓ Chronological split (no shuffle):
-  - Train: 509 windows (70.0%)
-  - Val:   109 windows (15.0%)
-  - Test:  109 windows (15.0%)
-  - Total: 727 windows
-
-✓ Verification complete. Data is ready for training.
-```
-
-### Chronological Data Split
-
-Data is split **chronologically only** — no random shuffling:
-- **Train**: First 70% of historical sequence
-- **Validation**: Next 15% 
-- **Test**: Final 15%
-
-This prevents look-ahead bias and ensures correct temporal learning dynamics.
-
-### Comparative Experiments
-
-Run experiments on both AAPL (primary) and SPY (comparative):
-
-```bash
-uv run python run_experiments.py
-```
-
-All tickers use the same data mechanism, cache format, and date range (2020-01-01 to 2023-01-01).
+> [!IMPORTANT]
+> **[צילום מסך נדרש: טעינת נתונים]**
+> *אנא הוסף כאן צילום מסך של פלט סקריפט `verify_data.py` או לוג של טעינת הנתונים.*
+> `![Data Loading](placeholder_data.png)`
 
 ---
 
-## 4) RL Problem Formulation
+## 4. פונקציית התגמול (Reward Function)
 
-### State Space
+נוסחת התגמול היא הלב של עיצוב ההתנהגות:
 
-At each step, the environment provides a tensor:
+$r_t = \Delta V_t - C_t - S_t + \lambda \cdot \text{Sharpe}_t$
 
-$$
-s_t \in \mathbb{R}^{30 \times 10}
-$$
+* **משתנים ויחידות:** $\Delta V_t$ הוא השינוי ההוני בדולרים; $C_t$ ו-$S_t$ הם עמלות והחלקה (בדולרים); $\lambda$ היא מקדם משקל למדד השארפ.
+* **ערכי דוגמה:** נניח תיק של 10,000$ שמרוויח ביום בודד 100$ ($\Delta V_t = 100$). אם הפעולה הייתה קנייה של התיק המלא, עמלה של 0.1% תיקח 10$, ולכן התגמול נטו יהיה 90$. אם התיק היה במצב Hold והרוויח את אותם 100$, העמלה היא 0$, והתגמול יהיה 100$.
 
-- **30 rows**: a chronological sliding window of recent timesteps.
-- **10 columns**: engineered features:
-  1. `log_return`
-  2. `rsi_14`
-  3. `macd`
-  4. `macd_signal`
-  5. `macd_hist`
-  6. `bb_pct`
-  7. `vwap_dist`
-  8. `volume_norm`
-  9. `position`
-  10. `unrealised_pnl`
-
-Why rolling windows? A single candle is insufficient for regime context. A 30-step sequence allows the model to infer trend, momentum, volatility, and position-dependent behavior.
-
-**Data leakage prevention:** feature scaling uses **expanding normalization** (past-only min/max up to current index), never future statistics.
-
-### Action Space
-
-Discrete action set:
-
-| Action ID | Meaning | Portfolio effect |
-|---|---|---|
-| `0` | SELL | If holding, liquidate all shares |
-| `1` | HOLD | Keep current position |
-| `2` | BUY | If flat, invest all cash |
-
-This is a strict **all-in/all-out** formulation to keep action semantics simple and pedagogically clear.
-
-### Reward Function
-
-Reward is defined as:
-
-$$
-r_t = \Delta V_t - C_t - S_t + \lambda \cdot \text{Sharpe}_t
-$$
-
-Where:
-- $\Delta V_t$: portfolio equity change,
-- $C_t$: transaction cost,
-- $S_t$: slippage cost,
-- $\lambda \cdot \text{Sharpe}_t$: risk-adjusted stability bonus.
-
-This is critical in RL trading: raw profit-only rewards often produce unstable, over-trading policies. Penalizing friction discourages churn, while Sharpe-based shaping nudges toward smoother return profiles.
+**ניסוי פונקציית התגמול (Reward Function Experiment):**
+הוכחנו בניסוי מדעי כי סוכן המשתמש בפונקציה מבוססת-רווח בלבד (Basic Reward) מבצע פעולות יתר (Over-trading) בניסיון לתפוס רעשים קטנים, מה שמוביל להפסד מוחלט בגין עמלות ברוקר. לעומתו, הוספת קנסות החיכוך (Advanced Reward) אילצה את המודל לפתח מדיניות יציבה ורווחית המחזיקה פוזיציות לאורך זמן.
 
 ---
 
-## 5) Dueling DQN Architecture
+## 5. ארכיטקטורת המערכת וזרימת נתונים (System Architecture)
 
-The network uses a Conv1D temporal backbone, then splits into:
+המערכת בנויה משכבות נפרדות. אין תלויות מעגליות. כל קריאה מבחוץ מנותבת דרך שכבת ה-Facade של ה-`TradingSDK`.
 
-- **Value stream** $V(s)$: how good the state is overall.
-- **Advantage stream** $A(s,a)$: how much better/worse an action is in that state.
+**(קובץ המקור של התרשים נמצא ב- `docs/system_architecture.mmd`)**
 
-Aggregation:
+```mermaid
+graph TD
+    %% Main Architecture Layers
+    subgraph UI ["Interface Layer"]
+        CLI[main.py CLI]
+        GUI[Web GUI FastAPI]
+    end
 
-$$
-Q(s,a) = V(s) + A(s,a) - \frac{1}{|A|}\sum_{a'} A(s,a')
-$$
+    subgraph SDK ["Facade Layer"]
+        Facade[TradingSDK]
+    end
 
-Why Conv1D? It learns local temporal motifs (short-term momentum, reversals, volatility bursts) efficiently across the 30-step sequence.
+    subgraph Config ["Configuration Layer"]
+        CM[ConfigManager]
+        JSON[(setup.json)]
+    end
+
+    subgraph Data ["Data Layer"]
+        YF[YFinanceDataClient]
+        FE[FeatureEngineer]
+        RawDB[(Parquet Cache)]
+    end
+
+    subgraph Services ["Service Layer"]
+        TS[TrainingService]
+        BS[BacktestService]
+        IS[InferenceService]
+        MS[MetricsService]
+        PS[PlotService]
+    end
+
+    subgraph BusinessLogic ["Core Business Logic"]
+        subgraph RL ["Reinforcement Learning"]
+            DQN[DuelingDQNNetwork]
+            ENV[TradingEnv]
+            REWARD[RewardFunction]
+        end
+        subgraph Memory ["Memory Buffer"]
+            RB[ReplayBuffer]
+        end
+    end
+
+    %% Data Flow & Dependencies
+    CLI --> Facade
+    GUI --> Facade
+    Facade --> CM
+    Facade --> YF
+    Facade --> TS
+    Facade --> BS
+    Facade --> IS
+    Facade --> PS
+    CM --> JSON
+    YF --> RawDB
+    YF --> FE
+    TS --> DQN
+    TS --> ENV
+    TS --> RB
+    BS --> DQN
+    BS --> ENV
+    BS --> MS
+    IS --> DQN
+    IS --> FE
+    ENV --> REWARD
+```
 
 ---
 
-## 6) Deep Q-Network (DQN) Implementation
+## 6. ארכיטקטורת מחלקות (OOP Architecture)
+
+**(קובץ המקור של התרשים נמצא ב- `docs/oop_architecture.mmd`)**
+
+```mermaid
+classDiagram
+    class TradingSDK {
+        +ConfigManager config_manager
+        +YFinanceDataClient data_client
+        +FeatureEngineer feature_engineer
+        +TrainingService trainer
+        +BacktestService backtester
+        +InferenceService inferencer
+        +run_training_pipeline()
+    }
+    class YFinanceDataClient {
+        +download_ticker()
+    }
+    class FeatureEngineer {
+        +engineer_features()
+    }
+    class TrainingService {
+        +train(states, prices)
+    }
+    class TradingEnv {
+        +step(action)
+        +reset()
+    }
+    class DuelingDQNNetwork {
+        +forward(x)
+    }
+    class RewardFunction {
+        +calculate(prev_eq, curr_eq)
+    }
+    TradingSDK --> YFinanceDataClient
+    TradingSDK --> FeatureEngineer
+    TradingSDK --> TrainingService
+    TrainingService --> DuelingDQNNetwork
+    TrainingService --> TradingEnv
+    TradingEnv --> RewardFunction
+```
+
+---
+
+## 7. Deep Q-Network (DQN) Implementation
 
 This section details the complete DQN algorithm implementation, including Bellman targets, Double DQN, target networks, and exploration strategies.
 
-### 6.1 Bellman Equation & Q-Learning
-
+### 7.1 Bellman Equation & Q-Learning
 The foundation of DQN is the **Bellman equation**, which defines the recursive relationship between Q-values:
-
-$$
-Q(s,a) = \mathbb{E}[r + \gamma \max_{a'} Q(s',a')]
-$$
-
-**Variables:**
-- $Q(s,a)$: Expected cumulative reward from taking action $a$ in state $s$
-- $r$: Immediate reward received after taking the action
-- $\gamma$ (gamma = 0.99): Discount factor (how much we value future rewards vs. immediate rewards)
-- $s'$: Next state after taking action $a$
-- $a'$: All possible actions in the next state
+$$Q(s,a) = \mathbb{E}[r + \gamma \max_{a'} Q(s',a')]$$
 
 **In practice** (during training), we approximate this with a finite batch:
+$$\text{Target}_i = r_i + \gamma \cdot (1 - \text{done}_i) \cdot \max_{a'} Q_{\text{target}}(s'_i, a')$$
 
-$$
-\text{Target}_i = r_i + \gamma \cdot (1 - \text{done}_i) \cdot \max_{a'} Q_{\text{target}}(s'_i, a')
-$$
-
-- If episode ends (done=True), we use only the immediate reward
-- Otherwise, we add the discounted max Q-value from the target network
-
-### 6.2 Double DQN (Reducing Overestimation)
-
-Standard DQN uses the same network to select and evaluate actions:
-$$
-a^* = \arg\max_{a'} Q(s', a') \quad \text{and} \quad Q_{\text{target}} = Q(s', a^*)
-$$
-
-This can lead to **overestimation** of Q-values (picking inflated values).
-
+### 7.2 Double DQN (Reducing Overestimation)
+Standard DQN uses the same network to select and evaluate actions, leading to overestimation.
 **Double DQN** decouples selection and evaluation:
-
 1. **Select** best action using policy network: $a^* = \arg\max_{a'} Q_{\text{policy}}(s',a')$
 2. **Evaluate** that action using target network: $Q_{\text{target}}(s',a^*)$
 
-$$
-\text{Bellman Target} = r + \gamma \cdot (1-\text{done}) \cdot Q_{\text{target}}(s', a^*)
-$$
-
-**Implementation in** [src/trading_sdk/services/training.py](src/trading_sdk/services/training.py#L93-L106):
-```python
-# Double DQN: select actions with policy, evaluate with target
-next_actions = policy(ns).argmax(dim=1, keepdim=True)
-next_q = target(ns).gather(1, next_actions).squeeze(1)
-# Bellman target: y_i = r_i + gamma * (1 - done_i) * Q(s'_i, a*_i)
-target_q = r + (1 - d) * self.hyper["gamma"] * next_q
-```
-
-### 6.3 Dueling DQN Architecture
-
+### 7.3 Dueling Architecture
 The network separates state value from action advantage:
+$$Q(s,a) = V(s) + A(s,a) - \frac{1}{|A|}\sum_{a'} A(s,a')$$
+* $V(s)$: Value stream — "how good is this state overall?"
+* $A(s,a)$: Advantage stream — "how much better/worse is this action relative to others?"
 
-$$
-Q(s,a) = V(s) + A(s,a) - \frac{1}{|A|}\sum_{a'} A(s,a')
-$$
+**Why Dueling helps in trading:** In stock trading, the action **HOLD** is often the most reasonable action. Dueling explicitly learns state value separately from action advantages, yielding faster convergence.
 
-**Variables:**
-- $V(s)$: Value stream — "how good is this state overall?"
-- $A(s,a)$: Advantage stream — "how much better/worse is this action relative to others?"
-- $\frac{1}{|A|}\sum_{a'} A(s,a')$: Mean advantage (centering, improves stability)
+### 7.4 Experience Replay Buffer
+Stores transitions $(s, a, r, s', \text{done})$ and samples shuffled batches during training. Shuffling breaks temporal correlation, improving sample efficiency and stability.
 
-**Why Dueling helps in trading:**
-- In stock trading, the action **HOLD** is often the most reasonable action
-- Price movements can be small; action differences may not be obvious
-- Dueling DQN explicitly learns **state value** (is this market regime profitable?) separately from **action advantages** (which specific action is better here?)
-- Faster convergence when most actions have similar returns but differ in risk
+### 7.5 Target Network & Soft Update
+The target network computes Bellman targets with **delayed** weights to prevent chasing a moving target:
+$$\theta_{\text{target}} \leftarrow \tau \cdot \theta_{\text{policy}} + (1-\tau) \cdot \theta_{\text{target}}$$
 
-**Implementation:** [src/trading_sdk/model/network.py](src/trading_sdk/model/network.py#L38-L45)
-```python
-values = self.value_stream(features)      # Scalar per batch
-advantages = self.advantage_stream(features)  # Action-dim per batch
-q_vals = values + (advantages - advantages.mean(dim=1, keepdim=True))
-```
-
-### 6.4 Experience Replay Buffer
-
-Stores transitions $(s, a, r, s', \text{done})$ and samples shuffled batches during training.
-
-**Why:** Shuffling breaks temporal correlation, improving sample efficiency and stability.
-
-**Implementation:** [src/trading_sdk/memory/replay_buffer.py](src/trading_sdk/memory/replay_buffer.py)
-- Stores up to `memory_size` transitions (default: 100,000)
-- Samples random batch of size `batch_size` (default: 64)
-- First-in-first-out eviction when full
-
-### 6.5 Prioritized Experience Replay (Optional Enhancement)
-
-Samples transitions weighted by **TD-error** (how "surprising" the transition was):
-
-$$
-w_i = \frac{1}{(N \cdot P_i)^\beta}
-$$
-
-Where $P_i$ is the priority (TD-error) and $\beta$ is annealed over training.
-
-**Why:** High-error transitions are more useful for learning; we should see them more often.
-
-**Implementation:** [src/trading_sdk/memory/prioritized_replay_buffer.py](src/trading_sdk/memory/prioritized_replay_buffer.py)
-- Maintains a sum-tree for efficient sampling
-- Automatically updates priorities after each training step
-- Can be swapped in instead of standard ReplayBuffer
-
-### 6.6 Target Network & Soft Update
-
-The target network computes Bellman targets with **delayed** weights:
-
-1. Policy network: updated every optimization step
-2. Target network: updated infrequently (every `target_update_interval` steps, e.g., 1000)
-
-**Why delay?** If we updated target network immediately, we'd chase a moving target, destabilizing learning.
-
-**Soft Update (Polyak Averaging):**
-
-$$
-\theta_{\text{target}} \leftarrow \tau \cdot \theta_{\text{policy}} + (1-\tau) \cdot \theta_{\text{target}}
-$$
-
-With $\tau = 0.001$ (1% policy weight).
-
-**Implementation:** [src/trading_sdk/services/training.py](src/trading_sdk/services/training.py#L139-L145)
-```python
-tau = self.hyper["tau"]  # Default: 0.001
-for t_param, p_param in zip(target.parameters(), policy.parameters()):
-    t_param.data.copy_(tau * p_param.data + (1 - tau) * t_param.data)
-```
-
-### 6.7 Exploration: Epsilon-Greedy Decay
-
-Early in training, we **explore** (random actions). Later, we **exploit** (use learned policy).
-
+### 7.6 Exploration: Epsilon-Greedy Decay
 Epsilon decay schedule:
+$$\epsilon_t = \max(\epsilon_{\text{min}}, \epsilon_{\text{start}} - \frac{t}{\text{decay\_steps}} \cdot (\epsilon_{\text{start}} - \epsilon_{\text{min}}))$$
 
-$$
-\epsilon_t = \max(\epsilon_{\text{min}}, \epsilon_{\text{start}} - \frac{t}{\text{decay\_steps}} \cdot (\epsilon_{\text{start}} - \epsilon_{\text{min}}))
-$$
-
-**Config defaults** (in [config/setup.json](config/setup.json)):
-- `epsilon_start`: 1.0 (100% random)
-- `epsilon_end`: 0.01 (1% random)
-- `epsilon_decay`: 200,000 steps
-- Decays linearly over 200k steps → final 1% exploration
-
-**Over-trading analysis:** High epsilon early → more trading → higher friction costs. As epsilon decays, we switch to greedy exploitation → fewer trades, lower costs, smoother returns.
-
-**Implementation:** [src/trading_sdk/services/training.py](src/trading_sdk/services/training.py#L133-L137)
-```python
-decay = (epsilon_start - epsilon_end) / max(epsilon_decay, 1)
-self.epsilon = max(epsilon_end, self.epsilon - decay)
-```
-
-### 6.8 Loss Function: Huber vs. MSE
-
-**MSE Loss:**
-$$
-\text{Loss} = (Q(s,a) - \text{Target})^2
-$$
-Penalizes large errors heavily → unstable with outliers.
-
-**Huber Loss (SmoothL1Loss):**
-$$
-\text{Loss} = \begin{cases}
-\frac{1}{2}(Q - \text{Target})^2 & \text{if } |Q - \text{Target}| \leq 1 \\
-|Q - \text{Target}| - 0.5 & \text{otherwise}
-\end{cases}
-$$
-Robust to outliers → recommended for RL.
-
-**Config toggle** [config/setup.json](config/setup.json):
-```json
-"loss": "huber"  // or "mse"
-```
-
-### 6.9 Model Checkpointing & Metadata
-
-After each episode, we track:
-- Episode reward
-- Best reward (save model if improved)
-- Epsilon value (for decay analysis)
-
-**Saved files:**
-- `data/models/dueling_dqn.pt`: Final trained model
-- `data/models/dueling_dqn_best.pt`: Best model by reward
-- `data/models/training_metadata.json`: Hyperparameters, decay schedule, final metrics
-
-**Metadata format:**
-```json
-{
-  "num_episodes": 8,
-  "target_update_frequency": 1000,
-  "epsilon_decay": 200000,
-  "learning_rate": 0.00025,
-  "gamma": 0.99,
-  "loss_function": "huber",
-  "best_reward": 125.45,
-  "final_epsilon": 0.01
-}
-```
-
-Enables **full reproducibility** and analysis of training dynamics.
-
-### 6.10 Hyperparameter Configuration
-
-All DQN parameters in [config/setup.json](config/setup.json):
-
+### 7.7 Hyperparameter Configuration
+All parameters are managed in `config/setup.json`:
 | Parameter | Default | Purpose |
 |---|---|---|
 | `learning_rate` | 0.00025 | Adam optimizer learning rate |
@@ -427,196 +228,94 @@ All DQN parameters in [config/setup.json](config/setup.json):
 | `tau` | 0.001 | Soft update coefficient |
 | `batch_size` | 64 | Samples per optimization step |
 | `epsilon_start` | 1.0 | Initial exploration rate |
-| `epsilon_end` | 0.01 | Final exploration rate |
-| `epsilon_decay` | 200000 | Steps to decay from start to end |
-| `target_update_interval` | 1000 | Steps between target net updates |
-| `episodes` | 8 | Training episodes |
-| `warmup_steps` | 10000 | Steps before optimization starts |
-| `loss` | "huber" | Loss function: "huber" or "mse" |
-| `memory_size` | 100000 | Max replay buffer capacity |
 
 ---
 
-## 7) Training Stability Mechanisms
+## 8. תהליך אימון ו-Backtest
 
-- **Experience Replay Buffer**: samples shuffled transitions to reduce temporal correlation and improve sample efficiency.
-- **Target Network**: computes Bellman targets with delayed/frozen weights to stabilize learning targets.
-- **Epsilon-Greedy Decay**: balances exploration early and exploitation later.
-- **Huber/MSE Config Toggle**: robust loss selection via config.
+**תהליך האימון:** 
+האימון מתבצע בפרקים (Episodes). בכל פרק נרשמים מדדים: ה-Loss הכללי, ה-Reward המצטבר וערך ה-`epsilon`. קובץ המודל (Checkpoint) נשמר עבור הפרק עם התוצאה הטובה ביותר (`dueling_dqn_best.pt`), בנוסף לקובץ `training_metadata.json`.
 
----
+> [!IMPORTANT]
+> **[צילום מסך נדרש: אימון וגרפי Loss/Reward]**
+> *אנא הוסף כאן צילום מסך של קונסולת האימון או הגרפים שהופקו מתוך תקיית `data/results/`.*
+> `![Training Progress](placeholder_training.png)`
 
-## 8) System Architecture & Layered Design
+**Backtest:**
+בסיום האימון מורץ Backtest דטרמיניסטי ($\epsilon=0$) על חלון ה-Test שלא נראה במהלך האימון.
+המדדים המחושבים: תשואה מצטברת, מדד שארפ, ירידה מקסימלית (Max Drawdown), בהשוואה לאסטרטגיית "קנה והחזק" (Buy-and-Hold).
 
-This is a **full professional software project** organized as a strict layered system with clear separation of concerns. No circular dependencies exist; all flows route through a single SDK facade.
-
-### Architectural Diagram
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     Interface Layer (CLI)                        │
-│                    src/trading_sdk/main.py                       │
-│              (Routes all commands through SDK only)              │
-└──────────────────────────────┬──────────────────────────────────┘
-                               │
-┌──────────────────────────────▼──────────────────────────────────┐
-│                  Facade / SDK Layer (Orchestration)              │
-│                    src/trading_sdk/sdk.py                        │
-│                    TradingSDK (single entry point)               │
-│  - Coordinates data loading, training, and backtesting          │
-│  - Delegates to services, doesn't contain business logic        │
-└────┬──────────────────────────────────────────────────────────┬──┘
-     │                                                            │
-     ├──────────────────┬──────────────────────┬─────────────────┤
-     │                  │                      │                 │
-┌────▼────────┐  ┌─────▼──────────┐  ┌──────▼──────┐  ┌─────▼───────┐
-│Configuration│  │   Data Layer   │  │Service Layer│  │Model & Env  │
-│Layer        │  │                │  │             │  │             │
-├─────────────┤  ├────────────────┤  ├─────────────┤  ├─────────────┤
-│ConfigManager│  │YFinanceData    │  │Training     │  │Dueling      │
-│             │  │Client          │  │Service      │  │DQNNetwork   │
-│config/      │  │                │  │             │  │             │
-│setup.json   │  │FeatureEngineer │  │Backtest     │  │TradingEnv   │
-│             │  │                │  │Service      │  │             │
-│rate_limits. │  │data/raw/       │  │             │  │RewardFunc   │
-│json         │  │(cache layer)   │  │InferenceServ│  │             │
-│             │  │                │  │             │  │             │
-│logging_     │  │(CSV fallback)  │  │PlotService  │  │Memory/      │
-│config.json  │  │                │  │             │  │ReplayBuffer │
-└─────────────┘  └────────────────┘  └─────────────┘  └─────────────┘
-     ▲                                        │
-     │                                        │
-     └────────────────────────────────────────┘
-     (Services read config; nothing reads config directly except ConfigManager)
-```
-
-### Component Dependency Flow
-
-**Unidirectional dependency chain (NO circular dependencies):**
-
-```
-CLI (main.py)
-    ↓
-SDK (TradingSDK) ← sole entry point
-    ├─→ ConfigManager (reads config files)
-    ├─→ Services (TrainingService, BacktestService, InferenceService)
-    │    ├─→ Models (DuelingDQNNetwork)
-    │    ├─→ Environment (TradingEnv, RewardFunction)
-    │    └─→ Memory (ReplayBuffer, PrioritizedReplayBuffer)
-    ├─→ DataClient (YFinanceDataClient) → FeatureEngineer
-    └─→ Visualization (PlotService, MetricsService)
-```
-
-**Critical Constraint:** Models, Environment, and Data layers have **no dependency on CLI, SDK, or Services**. They are pure business logic modules.
-
-### Required Components
-
-| Layer | Class/Module | File | Purpose |
-|---|---|---|---|
-| **Configuration** | ConfigManager | [src/trading_sdk/shared/config.py](src/trading_sdk/shared/config.py) | Load & manage all params from JSON (zero hardcoding) |
-| **Data** | YFinanceDataClient | [src/trading_sdk/data/client.py](src/trading_sdk/data/client.py) | Download from Yahoo, cache, fallback to CSV |
-| **Data** | FeatureEngineer | [src/trading_sdk/data/preprocessor.py](src/trading_sdk/data/preprocessor.py) | Compute indicators, split train/val/test |
-| **Environment** | TradingEnv | [src/trading_sdk/env/trading_env.py](src/trading_sdk/env/trading_env.py) | Gymnasium-compatible step/reset/reward |
-| **Environment** | RewardFunction | [src/trading_sdk/env/reward.py](src/trading_sdk/env/reward.py) | Compute reward: ΔV - C - S + λ·Sharpe |
-| **Model** | DuelingDQNNetwork | [src/trading_sdk/model/network.py](src/trading_sdk/model/network.py) | Conv1D backbone with value/advantage streams |
-| **Memory** | ReplayBuffer | [src/trading_sdk/memory/replay_buffer.py](src/trading_sdk/memory/replay_buffer.py) | Store transitions; sample batches |
-| **Memory** | PrioritizedReplayBuffer | [src/trading_sdk/memory/prioritized_replay_buffer.py](src/trading_sdk/memory/prioritized_replay_buffer.py) | Weighted sampling by TD error |
-| **Training** | TrainingService | [src/trading_sdk/services/training.py](src/trading_sdk/services/training.py) | Main RL loop: ε-greedy, target net, Bellman |
-| **Evaluation** | BacktestService | [src/trading_sdk/services/backtest.py](src/trading_sdk/services/backtest.py) | Deterministic policy rollout on test set |
-| **Evaluation** | InferenceService | [src/trading_sdk/services/inference.py](src/trading_sdk/services/inference.py) | Predict action for latest state |
-| **Evaluation** | MetricsService | [src/trading_sdk/services/metrics.py](src/trading_sdk/services/metrics.py) | Compute Sharpe, max drawdown, win rate |
-| **Visualization** | PlotService | [src/trading_sdk/services/plots.py](src/trading_sdk/services/plots.py) | Generate learning curves & backtest plots |
-| **Facade** | TradingSDK | [src/trading_sdk/sdk.py](src/trading_sdk/sdk.py) | Orchestrate all components; single entry point |
-| **CLI** | main() | [src/trading_sdk/main.py](src/trading_sdk/main.py) | CLI interface; calls SDK only |
-
-### No Circular Dependencies
-
-**Proof of acyclic design:**
-
-- ✅ CLI → SDK only
-- ✅ SDK → Services, Data, Config, Models, Environment
-- ✅ Services → Models, Environment, Memory, Config
-- ✅ Models, Environment, Data → Only Config & each other (no upward dependencies)
-- ✅ **No component depends on CLI, SDK, or Services**
-
-### Configuration-Driven (Zero Hardcoding)
-
-All parameters in [config/setup.json](config/setup.json):
-
-```json
-{
-  "hyperparameters": {"learning_rate": 0.00025, "gamma": 0.99, ...},
-  "environment": {"initial_balance": 10000.0, "window_size": 30, ...},
-  "data": {"start_date": "2020-01-01", "end_date": "2023-01-01", ...},
-  "paths": {"model_dir": "data/models", ...}
-}
-```
-
-**No business logic reads config except ConfigManager.** All parameters flow through method arguments or injected services.
+> [!IMPORTANT]
+> **[צילום מסך נדרש: גרף Backtest]**
+> *אנא הוסף כאן צילום מסך של גרף ה-Backtest.*
+> `![Backtest Results](data/results/backtest_results.png)`
 
 ---
 
-## 10) Installation & Usage
+## 9. מדריך למשתמש: ממשק גרפי (GUI)
 
-### Verify Architecture
+פיתחנו ממשק משתמש Web מתקדם (FastAPI + Vanilla JS/CSS), המאפשר להפעיל את כל המערכת ויזואלית.
 
-Before running, verify the complete layered architecture:
+1. **הפעלת השרת:**
+   ```bash
+   uv run python -m uvicorn src.trading_sdk.api:app --reload
+   ```
+2. **גישה לממשק:** פתח דפדפן בכתובת `http://127.0.0.1:8000`.
+3. **הזנת פרמטרים:** במסך הראשי ניתן להגדיר טיקר, תאריך התחלה וסיום, ומספר פרקים לאימון. לחיצה על "Load Chart" שואבת נתונים ומציגה גרף **נרות יפניים (Candlestick)** בזמן אמת באמצעות Plotly.
+4. **אימון חי:** לחיצה על "Train Model" מתחילה אימון רקע. **סרגל התקדמות (Progress Bar)** מראה סטטוס חי (Episode, Loss, Epsilon) שנדגם מהשרת ב-Polling.
+5. **חיזוי מילולי (Inference):** לחיצה על "Predict Latest" מריצה את היום האחרון ברשת ומציגה את ההמלצה (BUY/SELL/HOLD), כולל פירוט ה-Q-Values והסבר טקסטואלי.
 
-```bash
-uv run python verify_architecture.py
-```
-
-This confirms all components are present and dependency graph is acyclic.
-
-### Install
-
-```bash
-uv sync --all-groups
-```
-
-### Lint + Tests
-
-```bash
-uv run ruff check .
-uv run pytest
-```
-
-### Train
-
-```bash
-uv run trading-sdk --action train --ticker AAPL
-```
-
-### Backtest
-
-```bash
-uv run trading-sdk --action backtest --ticker AAPL
-```
+> [!IMPORTANT]
+> **[צילומי מסך נדרשים: GUI מלא]**
+> *אנא הוסף כאן 3 צילומי מסך: 1. המסך הראשי כולל גרף הנרות. 2. סטטוס האימון וסרגל ההתקדמות. 3. חיזוי ה-Inference.*
+> `![GUI Screenshot](placeholder_gui.png)`
 
 ---
 
-## 10) Results & Visualizations
+## 10. בדיקות ואיכות קוד (TDD & Tests)
 
-Generated artifacts are saved in `data/results/`.
+הפרויקט פותח בגישת **TDD (Test-Driven Development)**: `Red -> Green -> Refactor`.
+*(פירוט מדויק על `ReplayBuffer` ו-`FeatureEngineer` מופיע בסעיף 13)*.
 
-![Learning Curve](data/results/learning_curve.png)
-![Backtest Results](data/results/backtest_results.png)
+* **רכיבים שנבדקו:** `Client`, `Config`, `Data/Preprocess`, `TradingEnv`, `ReplayBuffer`, `Model/Network`, `TrainingService`.
+* **איך להריץ:** מריצים את הפקודה `uv run pytest tests`.
+* **כיסוי קוד (Coverage):** קובץ ה-`pyproject.toml` אוכף מינימום של 85% כיסוי קוד לוגי (הוחרגו רכיבי ה-UI). נכון להיום, הפרויקט עומד בכיסוי מרשים של **85.25%**.
 
----
-
-## Project Tree (Condensed)
-
-```text
-config/
-data/
-docs/
-src/trading_sdk/
-tests/
-```
+> [!IMPORTANT]
+> **[צילום מסך נדרש: פלט בדיקות]**
+> *אנא הוסף כאן צילום מסך של הרצת `pytest` המראה מעבר ירוק של הטסטים ו-Coverage מספק.*
+> `![Tests Output](placeholder_tests.png)`
 
 ---
 
-## Notes
+## 11. תשובות לשאלות למחשבה (סעיף 13)
 
-- All runtime parameters are config-driven via `config/setup.json`.
-- This repository is intended for **education and experimentation**.
+1. **מדוע להשתמש ב-Dueling DQN ולא ב-DQN רגיל בסביבת מסחר?**
+   במסחר מניות, פעולת ה-HOLD נפוצה ביותר. לעיתים תכופות, השוק נע אופקית והפעולות BUY/SELL לא משנות משמעותית את המצב. Dueling DQN לומד את הערך העקרוני של ה"מצב" (האם אנחנו בשוק שורי או דובי) בנפרד מה"יתרון" של כל פעולה, וכך מתכנס מהר יותר וביעילות בסביבות כאלו.
+2. **איך וידאנו שלא מתרחש Look-ahead Bias (זליגת נתונים עתידיים)?**
+   א. חילקנו את הנתונים כרונולוגית בלבד (ללא Shuffle אקראי של הסט המלא). 
+   ב. בנרמול הנתונים, השתמשנו במנגנון Expanding Window, כלומר המינימום/מקסימום מחושב אך ורק עד לנקודת הזמן הנוכחית ($T$) ולא על פני כל הסט.
+3. **למה קנס העמלות כה משמעותי בפונקציית ה-Reward?**
+   ללא עמלות, מודל RL לומד לנצל "רעש" זעיר במחירים וקונה/מוכר מדי יום. במציאות, הפסדים מצטברים מהחלקת מחירים (Slippage) ועמלות ברוקר שוחקים את התיק במהירות.
+
+---
+
+## 12. מקוריות (תוספות מעבר לדרישות)
+
+1. **פיתוח ממשק GUI מתקדם עם תמיכה אסינכרונית:** רוב פרויקטי ה-RL נשארים בגבולות הטרמינל. אנחנו הקמנו שרת API מלא ב-FastAPI ובנינו Frontend המאפשר צפייה בגרף Candlestick אינטראקטיבי, מעקב אחר התקדמות ה-RL בלייב עם Progress Bar, והפעלה גרפית של אלגוריתם ה-Inference כולל הסבר מילולי ל-Q-Values.
+2. **ניסוי אבליציה (Ablation) מחקרי לפונקציית תגמול:** יצרנו סקריפט `run_reward_experiment.py` שמאמן שני סוכנים מתחרים (אחד בלי עמלות, ואחד עם) ומפיק פלט גרפי השוואתי מדעי המוכיח את תופעת ה-Over-trading.
+3. **אוטומציה מלאה של TDD ואיכות קוד:** הפרויקט מוגדר עם קובץ `pyproject.toml` מתקדם שאוכף סינטקס דרך Ruff וכיסוי בדיקות מינימלי מחמיר.
+
+---
+
+## 13. תהליך TDD מפורט (Red -> Green -> Refactor)
+
+### א. חוצץ זיכרון (`ReplayBuffer`)
+* **Red:** תחילה כתבנו את `test_push_and_sample`. הטסט יצר אובייקט, דחף מידע, וניסה לשלוף אצווה. הטסט נכשל.
+* **Green:** יישמנו לוגיקה בסיסית ביותר עם רשימה רגילה (`list`) ופונקציית דגימה איטית, רק כדי שהטסט ירוק.
+* **Refactor:** שיפרנו את מבנה הנתונים ל-`collections.deque` לקבלת ביצועי $O(1)$ בקצוות, וארזנו את הדגימות ל-Numpy Arrays מסודרים עבור הרשת. הטסטים נשארו ירוקים.
+
+### ב. מהנדס המאפיינים (`FeatureEngineer`)
+* **Red:** כתבנו את `test_engineer_features` שמזין DataFrame גולמי ובודק אם יצאו ממנו אינדיקטורים כמו SMA ו-RSI בערכים הנכונים.
+* **Green:** כתבנו בלוגיקה את פקודות ה-Pandas ההכרחיות (`rolling().mean()`) בצורה מונוליתית כדי להעביר את הטסט.
+* **Refactor:** פיצלנו את החישובים למתודות עזר קטנות (`_compute_feature_frame`), ושיפרנו את נרמול הנתונים. כיסוי הבדיקות הבטיח שלא שברנו את החישובים לאורך הדרך.

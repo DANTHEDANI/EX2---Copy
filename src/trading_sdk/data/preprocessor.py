@@ -15,15 +15,23 @@ class FeatureEngineer:
         self.train_ratio = train_ratio
         self.val_ratio = val_ratio
         self.features = [
-            "log_return", "rsi_14", "macd", "macd_signal", "macd_hist",
-            "bb_pct", "vwap_dist", "volume_norm", "position", "unrealised_pnl",
+            "log_return",
+            "rsi_14",
+            "macd",
+            "macd_signal",
+            "macd_hist",
+            "bb_pct",
+            "vwap_dist",
+            "volume_norm",
+            "position",
+            "unrealised_pnl",
         ]
 
     def engineer_features(self, df: pd.DataFrame) -> np.ndarray:
         frame = self._compute_feature_frame(df)
         matrix = frame[self.features].to_numpy(dtype=np.float32)
         count = max(0, len(matrix) - self.window_size + 1)
-        return np.array([matrix[i:i + self.window_size] for i in range(count)], dtype=np.float32)
+        return np.array([matrix[i : i + self.window_size] for i in range(count)], dtype=np.float32)
 
     def split_data(self, states: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         n = len(states)

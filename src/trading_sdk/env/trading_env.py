@@ -98,7 +98,6 @@ class TradingEnv(gym.Env):
         current_equity = self.cash + (self.shares * next_price if self.position else 0.0)
         reward = self.reward_fn.calculate(prev_equity, current_equity, trade_value) + penalty
         terminated = (
-            current_equity <= (self.initial_balance * 0.1)
-            or self.current_step >= self.max_steps
+            current_equity <= (self.initial_balance * 0.1) or self.current_step >= self.max_steps
         )
         return self._get_state(), float(reward), terminated, False, self._get_info()

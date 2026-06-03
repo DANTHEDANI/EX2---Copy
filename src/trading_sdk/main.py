@@ -17,5 +17,6 @@ def main() -> None:
     else:
         sdk.evaluate_strategy(args.ticker)
 
+
 if __name__ == "__main__":
     main()
