@@ -265,8 +265,8 @@ The target network computes Bellman targets with **delayed** weights to prevent 
 $$\theta_{\text{target}} \leftarrow \tau \cdot \theta_{\text{policy}} + (1-\tau) \cdot \theta_{\text{target}}$$
 
 ### 8.6 Exploration: Epsilon-Greedy Decay
-Epsilon decay schedule:
-$$\epsilon_t = \max(\epsilon_{\text{min}}, \epsilon_{\text{start}} - \frac{t}{\text{decay\_steps}} \cdot (\epsilon_{\text{start}} - \epsilon_{\text{min}}))$$
+<img width="479" height="75" alt="image" src="https://github.com/user-attachments/assets/5249ea27-e690-4b74-9c14-3b6e7f97c6d8" />
+
 
 ### 8.7 Hyperparameter Configuration
 All parameters are managed in `config/setup.json`:
