@@ -285,14 +285,15 @@ All parameters are managed in `config/setup.json`:
 **תהליך האימון (מחזור מלא):** 
 *(הפניה לשקף 25 במצגת הקורס)*
 האימון מתבצע בפרקים (Episodes). בכל פרק המודל מבצע מחזור אימון מלא הכולל: ביצוע `reset` לסביבה, הרצת לולאת `step`, שמירת ה-transitions בחוצץ, דגימת `batch`, חישוב ועדכון ה-Bellman target, חישוב פונקציית ה-loss ולבסוף עדכון משקלים. נרשמים המדדים: ה-Loss הכללי, ה-Reward המצטבר וערך ה-`epsilon`. קובץ המודל (Checkpoint) נשמר עבור הפרק עם התוצאה הטובה ביותר (`dueling_dqn_best.pt`), בנוסף לקובץ `training_metadata.json`.
+<img width="1218" height="619" alt="image" src="https://github.com/user-attachments/assets/eff5d50b-5767-4b76-9c89-31b841a55431" />
+<img width="998" height="505" alt="image" src="https://github.com/user-attachments/assets/702dfc8e-fe61-467b-863e-ed0b68e7fc20" />
+<img width="500" height="805" alt="image" src="https://github.com/user-attachments/assets/a09a1fd2-ecfb-4aeb-bca3-360ea79e502a" />
+<img width="488" height="735" alt="image" src="https://github.com/user-attachments/assets/238fc82f-f92a-4dd7-a38e-2780827e2997" />
+<img width="488" height="326" alt="image" src="https://github.com/user-attachments/assets/caaf9b68-e406-4389-83d5-ad711f7f7a79" />
 
-> [!IMPORTANT]
-> **[צילום מסך נדרש: אימון וגרפי Loss/Reward]**
-> *אנא הוסף כאן צילום מסך של קונסולת האימון או הגרפים שהופקו מתוך תקיית `data/results/`.*
-> `![Training Progress](placeholder_training.png)`
 
-**Backtest וניתוח תוצאות:**
-*(הפניה לשקפים 26-27 במצגת הקורס)*
+
+
 בסיום האימון מורץ Backtest דטרמיניסטי ($\epsilon=0$) על חלון ה-Test שלא נראה במהלך האימון.
 המדדים המחושבים מנותחים על גבי ה-Equity Curve, וכוללים: Win Rate (אחוז ההצלחה של העסקאות), השוואה לאסטרטגיית "קנה והחזק" (Buy-and-Hold), ציון Sharpe Ratio ו-Max Drawdown.
 
@@ -313,12 +314,9 @@ All parameters are managed in `config/setup.json`:
 4. **אימון חי:** לחיצה על "Train Model" מתחילה אימון רקע. **סרגל התקדמות (Progress Bar)** מראה סטטוס חי (Episode, Loss, Epsilon) שנדגם מהשרת ב-Polling.
 5. **חיזוי מילולי (Inference):** לחיצה על "Predict Latest" מריצה את היום האחרון ברשת ומציגה את ההמלצה (BUY/SELL/HOLD), כולל פירוט ה-Q-Values והסבר טקסטואלי.
 
-> [!IMPORTANT]
-> **[צילומי מסך נדרשים: GUI מלא]**
-> *אנא הוסף כאן 3 צילומי מסך: 1. המסך הראשי כולל גרף הנרות. 2. סטטוס האימון וסרגל ההתקדמות. 3. חיזוי ה-Inference.*
-> `![GUI Screenshot](placeholder_gui.png)`
+<img width="756" height="881" alt="image" src="https://github.com/user-attachments/assets/00506c1d-2a42-4dc6-a82d-0e367a27e775" />
+<img width="728" height="608" alt="image" src="https://github.com/user-attachments/assets/af93c6db-0f90-497c-a38f-d61ec4b03424" />
 
----
 
 ## 11. בדיקות ואיכות קוד (TDD & Tests)
 *(הפניה לשקפים 28-29 במצגת הקורס)*
@@ -330,12 +328,7 @@ All parameters are managed in `config/setup.json`:
 * **איך להריץ:** מריצים את הפקודה `uv run pytest tests`.
 * **כיסוי קוד (Coverage):** קובץ ה-`pyproject.toml` אוכף מינימום של 85% כיסוי קוד לוגי (הוחרגו רכיבי ה-UI). נכון להיום, הפרויקט עומד בכיסוי מרשים של **85.25%**.
 
-> [!IMPORTANT]
-> **[צילום מסך נדרש: פלט בדיקות]**
-> *אנא הוסף כאן צילום מסך של הרצת `pytest` המראה מעבר ירוק של הטסטים ו-Coverage מספק.*
-> `![Tests Output](placeholder_tests.png)`
-
----
+<img width="1130" height="975" alt="image" src="https://github.com/user-attachments/assets/63a4ab68-c3e4-4029-a6f1-0f37917f92b2" />
 
 ## 12. מקוריות (תוספות מעבר לדרישות)
 
