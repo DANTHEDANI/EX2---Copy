@@ -287,12 +287,6 @@ All parameters are managed in `config/setup.json`:
 האימון מתבצע בפרקים (Episodes). בכל פרק המודל מבצע מחזור אימון מלא הכולל: ביצוע `reset` לסביבה, הרצת לולאת `step`, שמירת ה-transitions בחוצץ, דגימת `batch`, חישוב ועדכון ה-Bellman target, חישוב פונקציית ה-loss ולבסוף עדכון משקלים. נרשמים המדדים: ה-Loss הכללי, ה-Reward המצטבר וערך ה-`epsilon`. קובץ המודל (Checkpoint) נשמר עבור הפרק עם התוצאה הטובה ביותר (`dueling_dqn_best.pt`), בנוסף לקובץ `training_metadata.json`.
 <img width="1218" height="619" alt="image" src="https://github.com/user-attachments/assets/eff5d50b-5767-4b76-9c89-31b841a55431" />
 <img width="998" height="505" alt="image" src="https://github.com/user-attachments/assets/702dfc8e-fe61-467b-863e-ed0b68e7fc20" />
-<img width="500" height="805" alt="image" src="https://github.com/user-attachments/assets/a09a1fd2-ecfb-4aeb-bca3-360ea79e502a" />
-<img width="488" height="735" alt="image" src="https://github.com/user-attachments/assets/238fc82f-f92a-4dd7-a38e-2780827e2997" />
-<img width="488" height="326" alt="image" src="https://github.com/user-attachments/assets/caaf9b68-e406-4389-83d5-ad711f7f7a79" />
-
-
-
 
 בסיום האימון מורץ Backtest דטרמיניסטי ($\epsilon=0$) על חלון ה-Test שלא נראה במהלך האימון.
 המדדים המחושבים מנותחים על גבי ה-Equity Curve, וכוללים: Win Rate (אחוז ההצלחה של העסקאות), השוואה לאסטרטגיית "קנה והחזק" (Buy-and-Hold), ציון Sharpe Ratio ו-Max Drawdown.
@@ -316,6 +310,9 @@ All parameters are managed in `config/setup.json`:
 
 <img width="756" height="881" alt="image" src="https://github.com/user-attachments/assets/00506c1d-2a42-4dc6-a82d-0e367a27e775" />
 <img width="728" height="608" alt="image" src="https://github.com/user-attachments/assets/af93c6db-0f90-497c-a38f-d61ec4b03424" />
+<img width="500" height="805" alt="image" src="https://github.com/user-attachments/assets/a09a1fd2-ecfb-4aeb-bca3-360ea79e502a" />
+<img width="488" height="735" alt="image" src="https://github.com/user-attachments/assets/238fc82f-f92a-4dd7-a38e-2780827e2997" />
+<img width="488" height="326" alt="image" src="https://github.com/user-attachments/assets/caaf9b68-e406-4389-83d5-ad711f7f7a79" />
 
 
 ## 11. בדיקות ואיכות קוד (TDD & Tests)
